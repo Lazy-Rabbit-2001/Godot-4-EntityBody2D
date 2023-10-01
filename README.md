@@ -5,4 +5,4 @@ A GDExtension for Godot 4 to provide an EntityBody2D for 2D platform games
 Very easy, just clone it to the project directory you are working on, or download the zip and unzip it to the directory.
 
 # Supported platforms
-Windows 64
+Windows 10, 11 x64
