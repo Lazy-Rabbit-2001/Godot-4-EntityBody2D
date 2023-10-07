@@ -1,12 +1,12 @@
 [icons]
 
-EntityBody2D = "res://gdextension/entity_body_2d/entity_body_2d.svg"
+EntityBody2D = "res://gdextension/entity_body_2d/bin/entity_body_2d.svg"
 
 
 [configuration]
 
 entry_symbol = "entity_body_2d_library_init"
-compatibility_minimum = 4.1
+compatibility_minimum = 4.2
 
 
 [libraries]
