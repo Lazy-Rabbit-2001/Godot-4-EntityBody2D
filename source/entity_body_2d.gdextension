@@ -1,6 +1,6 @@
 [icons]
 
-EntityBody2D = "res://gdextension/entity_body_2d/bin/entity_body_2d.svg"
+EntityBody2D = "res://gdextension/entity_body_2d/source/entity_body_2d.svg"
 
 
 [configuration]
