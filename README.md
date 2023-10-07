@@ -78,3 +78,16 @@ velocity += acceleration * delta # acceleration is of Vector2 type
 
 ## Supported developing platforms
 Windows 10, 11 x86-64
+
+# Source Code
+## How to Get it?
+It's `src.zip` in the main page, and you can unpack it to get the source code
+## Permission
+### Allows:
+* Compilation for personal use
+* Reporting issues and pull requests
+### Disallows:
+* Compilation and publish it in other places without the author's permission
+* Forwarding to other places without any permission
+* Turning into malware or virus
+* Used against the policy of Github
