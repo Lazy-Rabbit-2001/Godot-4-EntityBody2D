@@ -1,3 +1,4 @@
+**English(Current)** | [中文版](zh_cn.md)
 # Godot 4 EntityBody2D
 A GDExtension for Godot 4 to provide an EntityBody2D for 2D platform games
 
