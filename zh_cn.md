@@ -63,7 +63,7 @@ velocity += acceleration * delta # 加速度为 Vector2 类型
 
 # 安装需求
 ## 前置
-需安装[Mathorm](https://github.com/Lazy-Rabbit-2001/Godot-4-Mathorm, "Mathorm")前置GDExtension扩展
+需安装[Mathorm](https://github.com/Lazy-Rabbit-2001/Godot-4-Mathorm)前置GDExtension扩展
 
 ## 支持的Godot版本
 4.2及以上
