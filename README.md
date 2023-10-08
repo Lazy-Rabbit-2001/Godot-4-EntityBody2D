@@ -81,4 +81,4 @@ Windows 10, 11 x86-64
 
 # Source Code
 ## How to Get it?
-It's `src.zip` in the main page, and you can unpack it to get the source code
+It's in `src.zip` in the main page, and you can unpack it to get the source code
