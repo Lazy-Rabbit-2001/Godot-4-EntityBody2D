@@ -58,6 +58,7 @@ If the `max_falling_speed` is greater than 0, the body will fall along the falli
 
 
 ## Other Methods
+### Basic extra methods
 Not only can a body run with new `move_and_slide()`, but they also have ability to be performed by other functions offered:
 
 * `accelerate_*()` -- with three versions: `accelerate_x()`, `accelerate_y()` and `accelerate()`, whose first params are `acceleration` in ***pixels/s²***, while the second ones are `to` in ***pixels/s***. They will move the x_speed/y_speed/velocity to the value of param `to` and they won't make the final value out of limitation. So if you want to accelerate a body without continuously, please code：
@@ -68,6 +69,10 @@ velocity += acceleration * delta # acceleration is of Vector2 type
 ```
 * `jump()` -- this will make te body jumps along the real up direction. This methods allows two params, between which the former one is jumping speed in ***pixels/s***, while the latter one is a boolean, and if `true`, the final velocity will be add by /real up direction * abs(jumping speed)/ rather than making falling speed 0 and then set the jumping speed
 * `use_friction()` -- this method, taking use of `lerp()`, to make the body slow down as if it has friction against the floor
+
+### Correction methods
+During the development, the developers may find their character moving with some issues, especially when they are working on some games like Super Mario Bros., in which Mario can walk through one-tile gaps; or such a situation where he jumps and hit the block, when acutally there is only a few pixels that should have made him jump up through the block by its side, but acutally he is blocked and starts to fall.  
+Thus, two methods `correct_on_wall_corner()` and `correct_onto_floor()` are implemented. The first method will solve the issue of the second situation mentioned above, making the body jump by the side of one block smoothly; while the second method deals with the problem of the body not being able to pass the one-tile gap.
 
 # Requirements
 ## Dependency
