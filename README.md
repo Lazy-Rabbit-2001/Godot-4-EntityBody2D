@@ -71,10 +71,14 @@ velocity += acceleration * delta # acceleration is of Vector2 type
 
 # Requirements
 ## Dependency
-[Mathorm](https://github.com/Lazy-Rabbit-2001/Godot-4-Mathorm, "Mathorm") is needed to run the extension
+[Mathorm](https://github.com/Lazy-Rabbit-2001/Godot-4-Mathorm) is needed to run the extension
 
 ## Supported Godot Versions
 4.2 or above
 
 ## Supported developing platforms
 Windows 10, 11 x86-64
+
+# Source Code
+## How to Get it?
+It's in `src.zip` in the main page, and you can unpack it to get the source code

@@ -4,7 +4,7 @@
 
 # 安装
 1. 打开你的游戏工程文件所在目录（即project.godot文件所在目录）
-2. 右键空白处，点击**"Open Git Bash Here"**
+2. 右键空白处，点击"Open Git Bash Here"
 3. 从下列两种情况中，根据自己实际情况，选择一种安装方法并对应输入命令
 ## 非Git Repo工程
 ```
@@ -23,7 +23,7 @@ git submodule add <the_link_of_this_repo> ./gdextension/entity_body_2d
 ## 重力系统
 重力系统是本插件的重中之重。下列属性均与该类的重力系统相关
 
-* `gravity`实际上为**重力加速度**，单位为***像素每二次方秒***，该值越大，则物体下落速度会变化得越来越快
+* `gravity`实际上为**重力加速度**，单位为***像素每二次方秒***，该值越大，则物体下落速度会变化得越快
 * `gravity_direction`确定该物体的下落方向。**注意：**`move_and_slide()`的参数`is_gravity_direction_rotated`会覆盖影响该下落方向。
 * `max_falling_speed`确定该物体在下落方向上的最大速度，该值为0时则无此限制。单位为**像素每秒**
 
@@ -63,7 +63,7 @@ velocity += acceleration * delta # 加速度为 Vector2 类型
 
 # 安装需求
 ## 前置
-需安装[Mathorm](https://github.com/Lazy-Rabbit-2001/Godot-4-Mathorm, "Mathorm")前置GDExtension扩展
+需安装[Mathorm](https://github.com/Lazy-Rabbit-2001/Godot-4-Mathorm)前置GDExtension扩展
 
 ## 支持的Godot版本
 4.2及以上
@@ -71,3 +71,6 @@ velocity += acceleration * delta # 加速度为 Vector2 类型
 ## 支持的开发系统及平台
 Windows 10, 11 x86-64
 
+# 源码
+## 在哪里？
+在`src.zip`文件夹里，需要解压使用
