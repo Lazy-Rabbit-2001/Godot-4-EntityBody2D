@@ -18,7 +18,8 @@ git submodule add <the_link_of_this_repo> ./gdextension/entity_body_2d
 # 使用说明
 本插件提供`EntityBody2D`节点类，继承自`CharacterBody2D`节点类。`EntityBody2D`内部新增多种属性与方法以适应开发2D平台游戏的开发者们的需求。
 
-`EntityBody2D`类自带重力系统，其中，`gravity`, `gravity_direction` and `max_falling_speed`这三个属性可以让开发者快速调节物体的重力属性。同时，在该类中也新增了一个`motion`属性，会自动计算经由`global_rotation`旋转后得到的`velocity`并赋值给`velocity`。为了能够让重力系统真正发挥作用，本人把`move_and_slide()`这一父类方法进行了重定义，同时向其中新增了两个属性：`is_gravity_direction_rotated`和`use_real_velocity`，这两个属性会影响到该物体最终的运动结果。当然，`EntityBody2D`中还有许多新加入的方法，如`accelerate_*()`、`jump()`、`use_friction()`等方法，能够向开发者提供更加直观快捷的接口。
+`EntityBody2D`类自带重力系统，其中，`gravity`, `gravity_direction` and `max_falling_speed`这三个属性可以让开发者快速调节物体的重力属性。同时，在该类中也新增了一个`motion`属性，会自动计算经由`global_rotation`旋转后得到的`velocity`并赋值给`velocity`，当然，开发者也可以直接通过`EntityBody2D`的检查器来直接修改`velocity`属性。  
+为了能够让重力系统真正发挥作用，本人把`move_and_slide()`这一父类方法进行了重定义，同时向其中新增了两个属性：`is_gravity_direction_rotated`和`use_real_velocity`，这两个属性会影响到该物体最终的运动结果。当然，`EntityBody2D`中还有许多新加入的方法，如`accelerate_*()`、`jump()`、`use_friction()`等方法，能够向开发者提供更加直观快捷的接口。
 
 ## 重力系统
 重力系统是本插件的重中之重。下列属性均与该类的重力系统相关
@@ -35,7 +36,8 @@ git submodule add <the_link_of_this_repo> ./gdextension/entity_body_2d
 
 ## 相对速度
 实际上，2D平台运动游戏的开发者会经常与速度属性`velocity`打交道，但随着时间的推移，越来越多的开发者希望能快速操作受`global_rotation`影响的速度，于是`motion`这个属性便呼之欲出。通过该属性，开发者无需计算实际速度，只需要输入该物体在相对正常情况下的速度就行了。其setter getter方法会自动计算、转换这两种速度。  
-同样举个例子：若`motion`为`Vector2(10, 0)`，`global_rotation`为PI/4(45°)，则实际速度为`Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)`
+同样举个例子：若`motion`为`Vector2(10, 0)`，`global_rotation`为PI/4(45°)，则实际速度为`Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)`  
+**注意：**如果修改了`motion`的值，那么在检查器内的`velocity`值也会被修改，反过来，如果检查器里的`velocity`值被修改，则`motion`的值也会有所调整。
 
 ## `EntityBody2D`中重定义的`move_and_slide()`方法
 该节点类的另一个核心点之一便是**重定义**的`move_and_slide()`方法，虽然方法名字与父类相同，但多了两个参数，开发者了解这些参数后能够对自己的游戏开发有所帮助。
