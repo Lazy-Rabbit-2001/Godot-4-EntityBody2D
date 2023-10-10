@@ -18,7 +18,7 @@ git submodule add <the_link_of_this_repo> ./gdextension/entity_body_2d
 # How to Use?
 This provides an extending class from `CharacterBody2D` named `EntityBody2D`, which offers extra properties and methods that developers can use when they are working on a 2D-platformer games.  
 
-`EntityBody2D` brings built-in gravity system, with `gravity`, `gravity_direction` and `max_falling_speed` presented to make designers get fast modification on gravity settings of a body inheriting from this class. In addition, another property `motion` is also provided to be edited so that a developer can fast set its velocity rotated by `global_rotation` of the `EntityBody2D` instance.  
+`EntityBody2D` brings built-in gravity system, with `gravity`, `gravity_direction` and `max_falling_speed` presented to make designers get fast modification on gravity settings of a body inheriting from this class. In addition, another property `motion` is also provided to be edited so that a developer can fast set its velocity rotated by `global_rotation` of the `EntityBody2D` instance. Of course, if you want to edit `velocity`, you can directly edit it through `EntityBody2D`'s inspector.  
 
 To make the gravity system totally implemented, `move_and_slide()` method has been hidden and redefined with two new parameters joining in: `is_gravity_direction_rotated` and `use_real_velocity`, which controls the acutal action that the body will perform when the method is being called.
 
@@ -42,6 +42,8 @@ E.g: If the `up_direction` is `Vector2(0, -1)` with `global_rotation` PI/4(45°)
 In actual projects, developers will frequently get access to `velocity`; however, they seem to be thirsty for a better way to get such one rotated by `global_rotation` of the body. This is why `motion` is born, which helps them to ignore how the global rotation will affect the final velocity, and they only to input the velocity without the rotation and the system will automatically operate it. 
 
 Let's have a example: If you have set `motion` of the body to `Vector2(10, 0)` with `global_rotation` PI/4(45°), the final velocity will be `Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)`
+
+**Note:** This would make `velocity` in the inspector affected as well, and if you edit the `velocity` in the dock, then the `motion` will be given with modification as well.
 
 ## `move_and_slide()` in `EntityBody2D`
 The core of the class is **redefined** `move_and_slide()` method, though its name maintains, and there are two new extra parameters that each developer needs to know to have a better understanding of its workflow.
