@@ -77,9 +77,6 @@ During the development, the developers may find their character moving with some
 Thus, two methods `correct_on_wall_corner()` and `correct_onto_floor()` are implemented. The first method will solve the issue of the second situation mentioned above, making the body jump by the side of one block smoothly; while the second method deals with the problem of the body not being able to pass the one-tile gap.
 
 # Requirements
-## Dependency
-[Mathorm](https://github.com/Lazy-Rabbit-2001/Godot-4-Mathorm) is needed to run the extension
-
 ## Supported Godot Versions
 4.2 or above
 
