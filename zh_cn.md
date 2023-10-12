@@ -77,3 +77,6 @@ Windows 10, 11 x86-64
 # 源码
 ## 在哪里？
 在`src.zip`文件夹里，需要解压使用
+
+## 源码前置
+需要安装[Fast Syntax](https://github.com/Lazy-Rabbit-2001/GDExtension-Fast-Syntax)语言扩展包
