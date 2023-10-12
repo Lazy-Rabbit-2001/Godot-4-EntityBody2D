@@ -86,3 +86,6 @@ Windows 10, 11 x86-64
 # Source Code
 ## How to Get it?
 It's in `src.zip` in the main page, and you can unpack it to get the source code
+
+## Source Code Dependency
+[Fast Syntax](https://github.com/Lazy-Rabbit-2001/GDExtension-Fast-Syntax) is needed
