@@ -8,11 +8,11 @@
 3. 从下列两种情况中，根据自己实际情况，选择一种安装方法并对应输入命令
 ## 非Git Repo工程
 ```
-git clone -b master <the_link_of_this_repo> ./gdextension/entity_body_2d
+git clone <the_link_of_this_repo> ./gdextension/entity_body_2d
 ```
 ## Git Repo工程
 ```
-git submodule add -b master <the_link_of_this_repo> ./gdextension/entity_body_2d
+git submodule add <the_link_of_this_repo> ./gdextension/entity_body_2d
 ```
 
 # 使用说明
