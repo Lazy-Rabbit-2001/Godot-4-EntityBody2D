@@ -76,7 +76,7 @@ Windows 10, 11 x86-64
 
 # 源码
 ## 在哪里？
-见[How to Install](how-to-install)，只需要把`-b src`加在`clone`或`add`之前即可
+见[How to Install](#how-to-install)，只需要把`-b src`加在`clone`或`add`之前即可
 
 ## 源码前置
 需要安装[Fast Syntax](https://github.com/Lazy-Rabbit-2001/GDExtension-Fast-Syntax)语言扩展包
