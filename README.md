@@ -85,7 +85,7 @@ Windows 10, 11 x86-64
 
 # Source Code
 ## How to Get it?
-See [How to Install](how-to-install), but with `-b src` before `clone` or `add`
+See [How to Install](#how-to-install), but with `-b src` before `clone` or `add`
 
 ## Source Code Dependency
 [Fast Syntax](https://github.com/Lazy-Rabbit-2001/GDExtension-Fast-Syntax) is needed
