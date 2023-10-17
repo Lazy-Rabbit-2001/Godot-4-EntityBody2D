@@ -43,10 +43,6 @@ public:
     void correct_on_wall_corner(const int steps = 4);
     void correct_onto_floor(const int steps = 20);
 
-    void set_body_motion(const Vector2 &motion);
-    Vector2 get_body_motion() const;
-
-
     // Properties Setters and Getters
     Vector2 get_real_up_direction() const;
     Vector2 get_falling_velocity() const;
