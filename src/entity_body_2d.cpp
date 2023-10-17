@@ -223,7 +223,6 @@ void EntityBody2D::correct_on_wall_corner(const int steps) {
             break;
         }
     }
-
     set_global_position(p);
 }
 
