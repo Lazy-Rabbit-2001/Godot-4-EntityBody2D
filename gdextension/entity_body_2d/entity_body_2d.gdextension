@@ -1,0 +1,15 @@
+[icons]
+
+EntityBody2D = "res://gdextension/entity_body_2d/source/entity_body_2d.svg"
+
+
+[configuration]
+
+entry_symbol = "entity_body_2d_library_init"
+compatibility_minimum = 4.2
+
+
+[libraries]
+
+windows.x86_64 = "entity_body_2d_datalib.windows.template_release.x86_64.dll"
+linux.x86_64 = "libentity_body_2d_datalib.linux.template_release.x86_64.dll"
