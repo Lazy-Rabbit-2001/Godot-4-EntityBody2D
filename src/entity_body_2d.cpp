@@ -130,7 +130,6 @@ bool EntityBody2D::move_and_slide(const bool is_gravity_direction_rotated, const
     if (use_real_velocity) {
         set_velocity(get_real_velocity());
     }
-    motion = get_velocity().rotated(-get_global_rotation());
 
     set_up_direction(up_direction);
 
@@ -192,6 +191,18 @@ void EntityBody2D::correct_on_wall_corner(const int steps) {
     // Only on ceiling or falling speed < 0 can skip this detection
     if (dot < 0.0 || UtilityFunctions::is_zero_approx(dot) || !on_ceiling) {
         return;
+    }
+
+    // Prevent from sliding up along reversed slope
+    Ref<KinematicCollision2D> k = get_last_slide_collision();
+    if (k == nullptr) {
+        return;
+    }
+    else {
+        double rslope = k->get_angle(_real_up_direction);
+        if (!UtilityFunctions::is_equal_approx(rslope, Math_PI)) {
+            return;
+        }
     }
 
     Vector2 p = get_global_position();
