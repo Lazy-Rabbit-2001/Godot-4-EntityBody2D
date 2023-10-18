@@ -3,10 +3,9 @@
 A GDExtension for Godot 4 to provide an EntityBody2D for 2D platform games
 
 # How to Install?
-1. Download the zip file from the "release" tab
+1. Clone the repo to any folders and copy the `gdextension` folder
 2. Go into the directory of your project where a `project.godot` exists
-3. Unzip the zip and drag and drop the file to the directory
-4. Reload the project
+3. Paste the folder you just copied to the directory
 
 # How to Use?
 This provides an extending class from `CharacterBody2D` named `EntityBody2D`, which offers extra properties and methods that developers can use when they are working on a 2D-platformer games.  
