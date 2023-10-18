@@ -8,11 +8,13 @@ A GDExtension for Godot 4 to provide an EntityBody2D for 2D platform games
 3. According to the situation listed below, choose the matching one method to finish the installation
 ## Project NOT AS a Git Repo
 ```
-git clone master <the_link_of_this_repo> ./gdextension/entity_body_2d
+git clone --filter=blob:none --sparse <the_link_of_this_repo> ./gdextension/entity_body_2d
+git sparse-checkout set bin
 ```
 ## Project AS a Git Repo
 ```
-git submodule add master <the_link_of_this_repo> ./gdextension/entity_body_2d
+git submodule add --filter=blob:none --sparse <the_link_of_this_repo> ./gdextension/entity_body_2d
+git sparse-checkout set bin
 ```
 
 # How to Use?
