@@ -50,6 +50,9 @@ The core of the class is **redefined** `move_and_slide()` method, though its nam
 ### `max_falling_speed` Working in the method
 If the `max_falling_speed` is greater than 0, the body will fall along the falling direction until the project of the falling velocity onto the `gravity_direction` is longer than this value, the `velocity` will be subtracted from this outranged section to make the projecter limited, so everthing will be viewed as the body falls with some maximum.
 
+# Known Issues
+## `velocity` setting and getting
+Due to some technical issues, it doesn't work to directly set `velocity` to a value, and getting velocity could return an unexpected result. Instead, `set_velocity()` and `get_velocity()` succeed in them respectively. You can ONLY get access to `velocity` via these two methods.
 
 ## Other Methods
 ### Basic extra methods
