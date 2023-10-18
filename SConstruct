@@ -23,8 +23,9 @@ for i in cpp_path:
 
 
 # Self library
-self_lib_name = "entity_body_2d_datalib"
-self_lib_path = "bin/" + self_lib_name
+self_mod_name = "entity_body_2d"
+self_lib_name = self_mod_name + "_datalib"
+self_lib_path = "gdextension/" + self_mod_name + "/" + self_lib_name
 
 def _get_os_lib_path(p_lib_path, p_lib_name, is_os):
     ret = ""
