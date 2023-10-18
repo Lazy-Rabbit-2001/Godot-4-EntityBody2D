@@ -3,19 +3,10 @@
 A GDExtension for Godot 4 to provide an EntityBody2D for 2D platform games
 
 # How to Install?
-1. Go into the directory of your project where a `project.godot` exists
-2. Right click and run **"Open Git Bash Here"**
-3. According to the situation listed below, choose the matching one method to finish the installation
-## Project NOT AS a Git Repo
-```
-git clone --filter=blob:none --sparse <the_link_of_this_repo> ./gdextension/entity_body_2d
-git sparse-checkout set bin
-```
-## Project AS a Git Repo
-```
-git submodule add --filter=blob:none --sparse <the_link_of_this_repo> ./gdextension/entity_body_2d
-git sparse-checkout set bin
-```
+1. Download the zip file from the "release" tab
+2. Go into the directory of your project where a `project.godot` exists
+3. Unzip the zip and drag and drop the file to the directory
+4. Reload the project
 
 # How to Use?
 This provides an extending class from `CharacterBody2D` named `EntityBody2D`, which offers extra properties and methods that developers can use when they are working on a 2D-platformer games.  
@@ -84,10 +75,6 @@ Thus, two methods `correct_on_wall_corner()` and `correct_onto_floor()` are impl
 
 ## Supported developing platforms
 Windows 10, 11 x86-64
-
-# Source Code
-## How to Get it?
-See [How to Install](#how-to-install), but with `-b src` before `clone` or `add`
 
 ## Source Code Dependency
 [Fast Syntax](https://github.com/Lazy-Rabbit-2001/GDExtension-Fast-Syntax) is needed
