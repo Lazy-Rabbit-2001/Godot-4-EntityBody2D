@@ -3,19 +3,10 @@
 为2D平台游戏而开发的适用于Godot 4的 GDExtension，向引擎中自动附加`EntityBody2D`节点类
 
 # 安装
-1. 打开你的游戏工程文件所在目录（即project.godot文件所在目录）
-2. 右键空白处，点击"Open Git Bash Here"
-3. 从下列两种情况中，根据自己实际情况，选择一种安装方法并对应输入命令
-## 非Git Repo工程
-```
-git clone --filter=blob:none --sparse <the_link_of_this_repo> ./gdextension/entity_body_2d
-git sparse-checkout set bin
-```
-## Git Repo工程
-```
-git submodule add --filter=blob:none --sparse <the_link_of_this_repo> ./gdextension/entity_body_2d
-git sparse-checkout set bin
-```
+1. 从右侧“release”面板处下载zip文件
+2. 打开你的游戏工程文件所在目录（即project.godot文件所在目录）
+3. 右键空白处，点击"Open Git Bash Here"
+4. 将zip文件解压，并将其中的文件夹拖拽到该目录内即可
 
 # 使用说明
 本插件提供`EntityBody2D`节点类，继承自`CharacterBody2D`节点类。`EntityBody2D`内部新增多种属性与方法以适应开发2D平台游戏的开发者们的需求。
