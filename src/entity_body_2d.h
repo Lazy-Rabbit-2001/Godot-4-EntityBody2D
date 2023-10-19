@@ -11,6 +11,7 @@ private:
     // Exported properties
     double speed;
     Vector2 speed_direction;
+    bool speed_for_motion;
     Vector2 gravity_direction;
     Vector2 top_direction;
     double gravity;
@@ -58,6 +59,9 @@ public:
 
     void set_speed_direction(const Vector2 &p_speed_direction);
     Vector2 get_speed_direction() const;
+
+    void set_speed_for_motion(const bool p_speed_for_motion);
+    bool is_speed_for_motion() const;
 
     void set_motion(const Vector2 &p_motion);
     Vector2 get_motion();

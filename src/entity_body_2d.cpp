@@ -21,15 +21,22 @@ void EntityBody2D::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_speed"), &EntityBody2D::get_speed);
     ClassDB::bind_method(D_METHOD("set_speed", "p_speed"), &EntityBody2D::set_speed);
     ClassDB::add_property(
-        "EntityBody2D", PropertyInfo(Variant::FLOAT, "speed"),
+        "EntityBody2D", PropertyInfo(Variant::FLOAT, "speed", PropertyHint::PROPERTY_HINT_RANGE, "-1, 1, 0.001, or_less, or_greater, hide_slider, suffix:px/s"),
         "set_speed", "get_speed"
     );
     // Vector2 speed_direction
-    ClassDB::bind_method(D_METHOD("get_speed_directionn"), &EntityBody2D::get_speed_direction);
-    ClassDB::bind_method(D_METHOD("set_speed_directionn", "p_speed_direction"), &EntityBody2D::set_speed_direction);
+    ClassDB::bind_method(D_METHOD("get_speed_direction"), &EntityBody2D::get_speed_direction);
+    ClassDB::bind_method(D_METHOD("set_speed_direction", "p_speed_direction"), &EntityBody2D::set_speed_direction);
     ClassDB::add_property(
         "EntityBody2D", PropertyInfo(Variant::VECTOR2, "speed_direction"),
-        "get_speed_directionn", "set_speed_directionn"
+        "set_speed_direction", "get_speed_direction"
+    );
+    // bool speed_for_motion
+    ClassDB::bind_method(D_METHOD("is_speed_for_motion"), &EntityBody2D::is_speed_for_motion);
+    ClassDB::bind_method(D_METHOD("set_speed_for_motion", "p_speed_for_motion"), &EntityBody2D::set_speed_for_motion);
+    ClassDB::add_property(
+        "EntityBody2D", PropertyInfo(Variant::BOOL, "speed_for_motion"),
+        "set_speed_for_motion", "is_speed_for_motion"
     );
     // Vector2 motion
     ClassDB::bind_method(D_METHOD("get_motion"), &EntityBody2D::get_motion);
@@ -88,6 +95,7 @@ EntityBody2D::EntityBody2D() {
     // Properties' intialization
     speed = 0.0;
     speed_direction = Vector2(1, 0);
+    speed_for_motion = true;
     gravity_direction = Vector2(0, 1);
     gravity = 0.0;
     max_falling_speed = 1500;
@@ -98,9 +106,14 @@ EntityBody2D::~EntityBody2D() {}
 
 // Built-in
 void EntityBody2D::_enter_tree() {
-    Vector2 init_velocity = speed * speed_direction;
-    if (get_velocity().is_zero_approx() && init_velocity.is_zero_approx()) {
-        set_velocity(init_velocity);
+    Vector2 init_speed = speed * speed_direction;
+    if (get_velocity().is_zero_approx() && init_speed.is_zero_approx()) {
+        if (speed_for_motion) {
+            set_motion(init_speed);
+        }
+        else {
+            set_velocity(init_speed);
+        }
     }
 }
 
@@ -113,12 +126,11 @@ bool EntityBody2D::move_and_slide(const bool is_gravity_direction_rotated, const
     _velocity = velocity;
 
     // Up direction
-    Vector2 up_direction = get_up_direction();
     set_up_direction(top_direction.rotated(get_global_rotation()));
     
     // Override falling velocity
     if (is_gravity_direction_rotated) {
-        gravity_direction = -up_direction;
+        gravity_direction = -get_up_direction();
     }
 
      // Falling
@@ -146,8 +158,6 @@ bool EntityBody2D::move_and_slide(const bool is_gravity_direction_rotated, const
     if (use_real_velocity) {
         set_velocity(get_real_velocity());
     }
-
-    set_up_direction(up_direction);
 
     // Signals emission
     if (is_on_wall()) {
@@ -330,6 +340,14 @@ Vector2 EntityBody2D::get_speed_direction() const {
     return speed_direction.normalized();
 }
 
+// bool speed_for_motion
+void EntityBody2D::set_speed_for_motion(const bool p_speed_for_motion) {
+    speed_for_motion = p_speed_for_motion;
+}
+
+bool EntityBody2D::is_speed_for_motion() const {
+    return speed_for_motion;
+}
 
 // Vector2 motion
 void EntityBody2D::set_motion(const Vector2 &p_motion) {
