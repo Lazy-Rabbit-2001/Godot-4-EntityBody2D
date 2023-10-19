@@ -1,5 +1,5 @@
 **English(Current)** | [中文版](zh_cn.md)
-# Godot 4 EntityBody2D (v1.5, NOT v2.0 yet)
+# Godot 4 EntityBody2D (v1.5)
 A GDExtension for Godot 4 to provide an EntityBody2D for 2D platform games
 
 # How to Install?
