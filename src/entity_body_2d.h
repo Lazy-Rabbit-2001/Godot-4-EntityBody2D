@@ -9,15 +9,16 @@ class EntityBody2D : public CharacterBody2D {
 
 private:
     // Exported properties
-    Vector2 motion;
+    double speed;
+    Vector2 speed_direction;
     Vector2 gravity_direction;
+    Vector2 top_direction;
     double gravity;
     double max_falling_speed;
 
     // Hiden properties
     Vector2 _velocity;
     Vector2 _falling_velocity;
-    Vector2 _real_up_direction;
 
     // Method use
     bool _motion_changed;
@@ -52,11 +53,14 @@ public:
     bool is_leaving_ground() const;
     bool is_falling() const;
 
+    void set_speed(const double p_speed);
+    double get_speed() const;
+
+    void set_speed_direction(const Vector2 &p_speed_direction);
+    Vector2 get_speed_direction() const;
+
     void set_motion(const Vector2 &p_motion);
     Vector2 get_motion();
-
-    void set_inspector_velocity(const Vector2 &p_inspector_velocity);
-    Vector2 get_inspector_velocity() const;
 
     void set_gravity_direction(const Vector2 &p_gravity_direction);
     Vector2 get_gravity_direction() const;
@@ -66,4 +70,7 @@ public:
 
     void set_max_falling_speed(const double p_max_falling_speed);
     double get_max_falling_speed() const;
+
+    void set_top_direction(const Vector2 &p_top_direction);
+    Vector2 get_top_direction() const;
 };
