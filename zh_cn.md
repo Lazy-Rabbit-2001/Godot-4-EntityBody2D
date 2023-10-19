@@ -1,5 +1,5 @@
 [English](README.md) | **中文版（当前页面）**
-# Godot 4 EntityBody2D (v1.5版本，勘误，非v2.0版本)
+# Godot 4 EntityBody2D (1.5版本)
 为2D平台游戏而开发的适用于Godot 4的 GDExtension，向引擎中自动附加`EntityBody2D`节点类
 
 # 安装
