@@ -114,6 +114,9 @@ void EntityBody2D::_enter_tree() {
         else {
             set_velocity(init_speed);
         }
+        speed = 0.0;
+        speed_direction = Vector2(1, 0);
+        speed_for_motion = false;
     }
 }
 
