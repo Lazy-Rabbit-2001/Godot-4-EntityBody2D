@@ -1,5 +1,5 @@
 **English(Current)** | [中文版](zh_cn.md)
-# Godot 4 EntityBody2D
+# Godot 4 EntityBody2D (v1.5, NOT v2.0 yet)
 A GDExtension for Godot 4 to provide an EntityBody2D for 2D platform games
 
 # How to Install?
@@ -10,7 +10,7 @@ A GDExtension for Godot 4 to provide an EntityBody2D for 2D platform games
 # How to Use?
 This provides an extending class from `CharacterBody2D` named `EntityBody2D`, which offers extra properties and methods that developers can use when they are working on a 2D-platformer games.  
 
-`EntityBody2D` brings built-in gravity system, with `gravity`, `gravity_direction` and `max_falling_speed` presented to make designers get fast modification on gravity settings of a body inheriting from this class. In addition, another property `motion` is also provided to be edited so that a developer can fast set its velocity rotated by `global_rotation` of the `EntityBody2D` instance. Of course, if you want to edit `velocity`, you can directly edit it through `EntityBody2D`'s inspector.  
+`EntityBody2D` brings built-in gravity system, with `gravity`, `gravity_direction` and `max_falling_speed` presented to make designers get fast modification on gravity settings of a body inheriting from this class. In addition, another property `motion` is also provided to be edited so that a developer can fast set its velocity rotated by `global_rotation` of the `EntityBody2D` instance.  If wanting to set the initial velocity of the body through `EntityBody2D`'s inspector, developers can edit `speed` and adjust `speed_direction`, which will be reset after they are applied to `velocity`.
 
 To make the gravity system totally implemented, `move_and_slide()` method has been hidden and redefined with two new parameters joining in: `is_gravity_direction_rotated` and `use_real_velocity`, which controls the acutal action that the body will perform when the method is being called.
 
@@ -25,23 +25,23 @@ Gravity is the significance for this extension. Hereby a property list will be s
 
 Remembering these properties and their usage may help developers better understand how the gravity will affect a body.
 
-## Up Direction & Real Up Direction
-In `EntityBody2D`, `up_direction` is not an absolute one if a body is moving via `move_and_slide()`. In such situation, `up_direction` is one when the body's `global_rotation` is 0, and you need to call `get_real_up_direction()` (hereinafter referred to as **"real up direction"**) to get one rotated by the `global_rotation`.  
+## Up Direction & Top Direction
+In `EntityBody2D`, `up_direction` is not an absolute one if a body is moving via `move_and_slide()`. In such situation, `up_direction` is one affected by body's `global_rotation`, and you need to get access to `top_direction` to get one without any rotation.  
 
-E.g: If the `up_direction` is `Vector2(0, -1)` with `global_rotation` PI/4(45°), the `up_direction` will keeps still while the real up direction will become `Vector2(0, -1).rotated(PI/4) => Vector2(√2/2, -√2/2)`
+E.g: If the `top_direction` is `Vector2(0, -1)` with `global_rotation` PI/4(45°), the `up_direction` will become `Vector2(0, -1).rotated(PI/4) => Vector2(√2/2, -√2/2)`
 
-## Motion
+## Motion & Speed
 In actual projects, developers will frequently get access to `velocity`; however, they seem to be thirsty for a better way to get such one rotated by `global_rotation` of the body. This is why `motion` is born, which helps them to ignore how the global rotation will affect the final velocity, and they only to input the velocity without the rotation and the system will automatically operate it. 
 
-Let's have a example: If you have set `motion` of the body to `Vector2(10, 0)` with `global_rotation` PI/4(45°), the final velocity will be `Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)`
+Let's have a example: If you have set `motion` of the body to `Vector2(10, 0)` with `global_rotation` PI/4(45°), the final velocity will be `Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)`  
 
-**Note:** This would make `velocity` in the inspector affected as well, and if you edit the `velocity` in the dock, then the `motion` will be given with modification as well.
+Before v1.5, `motion` is set in the inspector to make developers able to set initial velocity directly; however, it caused more problems then. To make developers easier to set an initial velocity, `speed`, `speed_direction` and `speed_for_motion` are implemented. The first one is the value of the initial speed, while the second one provides its direction. The last one decides if the initial velocity is applied for `motion` or `velocity`.
 
 ## `move_and_slide()` in `EntityBody2D`
 The core of the class is **redefined** `move_and_slide()` method, though its name maintains, and there are two new extra parameters that each developer needs to know to have a better understanding of its workflow.
 
 **Note:** Values in "()" are default values of representative parameters
-* `bool is_gravity_direction_rotated (true)` -- this will greatly affect the final movement of falling. If `true`, then it means the gravity will be the reverse of real up direction. For example, if you have your real up direction becoming `Vector2(1/2, -√3/2)`, the final falling direction will be `-Vector2(1/2, -√3/2) = Vector2(-1/2, √3/2)`
+* `bool is_gravity_direction_rotated (true)` -- this will greatly affect the final movement of falling. If `true`, then it means the gravity will be the reverse of the up direction. For example, if you have your up direction becoming `Vector2(1/2, -√3/2)`, the final falling direction will be `-Vector2(1/2, -√3/2) = Vector2(-1/2, √3/2)`
 * `bool use_real_velocity (false)` -- this will determine the final performance of the body's movement. In case of being `true`, the body will act more like it does in realler physics environment.
 
 ### The formula of falling velocity
@@ -52,7 +52,8 @@ If the `max_falling_speed` is greater than 0, the body will fall along the falli
 
 # Known Issues
 ## `velocity` setting and getting
-Due to some technical issues, it doesn't work to directly set `velocity` to a value, and getting velocity could return an unexpected result. Instead, `set_velocity()` and `get_velocity()` succeed in them respectively. You can ONLY get access to `velocity` via these two methods.
+* Due to some technical issues, it doesn't work to directly set `velocity` to a value, and getting velocity could return an unexpected result. Instead, `set_velocity()` and `get_velocity()` succeed in them respectively. You can ONLY get access to `velocity` via these two methods.
+* Due to the midium accuracy of GodotPhysics2D, when the angle of `gravity_direction` cannot be divided completely by PI/2, the body will behave unexpectedly. This issue would get repaired when [Jolt by Mikael Hermansson](https://github.com/godot-jolt/godot-jolt) is installed and enabled.
 
 ## Other Methods
 ### Basic extra methods
@@ -64,7 +65,7 @@ velocity.x += acceleration * delta # acceleration is of float type
 velocity.y += acceleration * delta # acceleration is of float type
 velocity += acceleration * delta # acceleration is of Vector2 type
 ```
-* `jump()` -- this will make te body jumps along the real up direction. This methods allows two params, between which the former one is jumping speed in ***pixels/s***, while the latter one is a boolean, and if `true`, the final velocity will be add by /real up direction * abs(jumping speed)/ rather than making falling speed 0 and then set the jumping speed
+* `jump()` -- this will make te body jumps along the real up direction. This methods allows two params, between which the former one is jumping speed in ***pixels/s***, while the latter one is a boolean, and if `true`, the final velocity will be add by /up direction * abs(jumping speed)/ rather than making falling speed 0 and then set the jumping speed
 * `use_friction()` -- this method, taking use of `lerp()`, to make the body slow down as if it has friction against the floor
 
 ### Correction methods
