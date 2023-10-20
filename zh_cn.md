@@ -1,5 +1,5 @@
 [English](README.md) | **中文版（当前页面）**
-# Godot 4 EntityBody2D (1.5版本)
+# Godot 4 EntityBody2D (1.6版本)
 为2D平台游戏而开发的适用于Godot 4的 GDExtension，向引擎中自动附加`EntityBody2D`节点类
 
 # 安装
@@ -17,33 +17,29 @@
 重力系统是本插件的重中之重。下列属性均与该类的重力系统相关
 
 * `gravity`实际上为**重力加速度**，单位为***像素每二次方秒***，该值越大，则物体下落速度会变化得越快
-* `gravity_direction`确定该物体的下落方向。**注意：**`move_and_slide()`的参数`is_gravity_direction_rotated`会覆盖影响该下落方向。
 * `max_falling_speed`确定该物体在下落方向上的最大速度，该值为0时则无此限制。单位为**像素每秒**
 
 记住这些属性及其说明，对开发者使用本插件制作物体将会更加得心应手
 
-## 上方向与头顶对向
+## 上方向、头顶对向与重力方向
 `EntityBody2D`中的`up_direction`在参与`move_and_slide()`方法的调用时，并非绝对意义上的上方向，在此情形下，此“上方向”为该物体在受到`global_rotation`影响下的上方向，如果需要不受`global_rotation`影响的“上方向”（即**头顶对向**），请访问`top_direction`属性。  
-举个例子：若`top_direction`为`Vector2(0, -1)`，`global_rotation`为PI/4(45°)，则该物体的上方向为`Vector2(0, -1).rotated(PI/4) => Vector2(√2/2, -√2/2)`
+举个例子：若`top_direction`为`Vector2(0, -1)`，`global_rotation`为PI/4(45°)，则该物体的上方向为`Vector2(0, -1).rotated(PI/4) => Vector2(√2/2, -√2/2)`  
+在1.6版本前，有一个专门设置重力方向的属性`gravity_direction`，但后来出于便捷性考虑，便弃用了该属性，取而代之的则是`up_direction`属性的反向量，可通过`get_gravity_direction()`方法快速获取。
 
 ## 相对速度和初速度
-实际上，2D平台运动游戏的开发者会经常与速度属性`velocity`打交道，但随着时间的推移，越来越多的开发者希望能快速操作受`global_rotation`影响的速度，于是`motion`这个属性便呼之欲出。通过该属性，开发者无需计算实际速度，只需要输入该物体在相对正常情况下的速度就行了。其setter getter方法会自动计算、转换这两种速度。  
-同样举个例子：若`motion`为`Vector2(10, 0)`，`global_rotation`为PI/4(45°)，则实际速度为`Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)`  
+实际上，2D平台运动游戏的开发者希望能够直接在节点检视器里给一个`EntityBody2D`实例赋予初始速度，为此，`EntityBody2D`特地将`velocity`属性暴露在检视器内。除此之外，还引入了一个`movement_local`属性，在做多重力游戏或者在一定情况下快速设置速度时非常实用。该属性为true时，`velocity`属性将会根据`global_rotation`而进行旋转；若为false，则`velocity`属性就等于该物体的全局速度，跟给`CharacterBody2D`设置的`velocity`属性并无二致。  
+需要注意的是：由于`EntityBody2D`中的`velocity`属性覆盖了在父类中的`velocity`属性，且受`movement_local`属性影响，因此可能会出现与预期相悖的一些情况。如果确实需要获取在父类中的`velocity`（也就是全局速度），请访问`global_velocity`属性。
 
-在本插件1.5版本之前，`motion`是直接可以在检查器里编辑的，但后来也造成了许多不便。为了让开发者能更加快捷地设置物体的初速度，就引入了`speed`、`speed_direction`和`speed_for_motion`这三个属性。为了能够让开发者更加快捷地设置初速度，于是便引入了`speed`、`speed_direction`和`speed_for_motion`这三个属性。`speed`为初速度数值，`speed_direction`为初速度方向，`speed_for_motion`为一布尔变量，若为`true`，则会将初速度转化为`motion`，否则直接转化为`velocity`
+同样举个例子：若`motion`为`Vector2(10, 0)`，`global_rotation`为PI/4(45°)，则实际速度为`Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)`  
 
 ## `EntityBody2D`中重定义的`move_and_slide()`方法
 该节点类的另一个核心点之一便是**重定义**的`move_and_slide()`方法，虽然方法名字与父类相同，但多了两个参数，开发者了解这些参数后能够对自己的游戏开发有所帮助。
 
 **注：** 括号内的数值为对应参数的对应默认值
-* `bool is_gravity_direction_rotated (true)`覆盖并影响该物体最终的下落效果，若为`true`，则最终下落方向为上方向的反方向。若上方向为`Vector2(1/2, -√3/2)`，则最终下落方向为`-Vector2(1/2, -√3/2) = Vector2(-1/2, √3/2)`
 * `bool use_real_velocity (false)`决定该物体最终的运动效果，若为`true`，则该物体将会以更加真实的物理效果进行运动
 
-### 下落速度公式
-`下落速度 = 重力加速度 * 最终下落方向(重力方向亦或是真实上方向的反方向)`
-
 ### `max_falling_speed`在该方法中的运作机理
-若`max_falling_speed`大于0，则该物体的速度在重力方向上的投影向量会受到限制，若超过这个限制，则该物体的最终速度为超过限制时的速度减去该投影向量超出限制的那部分向量。这样，就使得该物体在下落时看起来像是受到了最大限制（空气阻力）一样。
+若`max_falling_speed`大于0，则该物体的`velocity.y`在超过该数值时会被限制在该数值以内。
 
 ## 其他方法
 ### 其他基本方法
@@ -62,8 +58,7 @@ velocity += acceleration * delta # 加速度为 Vector2 类型
 
 # 已知问题
 ## `velocity`的设置与获取
-* 由于一些技术原因，直接对`velocity`属性进行操作并不会影响其实际数值，而`set_velocity()`和`get_velocity()`方法在设置、获取该属性时会起效。因此，您只能通过这两个方法来访问`velocity`属性
-* 由于Godot自带的2D物理引擎GodotPhysics2D的精度尚且不足，当`gravity_direction`的角度不为90°的整数倍时，其物理行为就会出现问题。目前可考虑使用[Mikael Hermansson的Jolt物理引擎插件](https://github.com/godot-jolt/godot-jolt)来解决该问题。
+* 由于Godot自带的2D物理引擎GodotPhysics2D的精度尚且不足，当`gravity_direction`的角度不为90°的整数倍时，其物理行为就会出现问题。该问题虽已被修复，但修复方法的性能开销较大，若对此有所需求，可考虑使用[Mikael Hermansson的Jolt物理引擎插件](https://github.com/godot-jolt/godot-jolt)来缓解该问题。
 
 # 安装需求
 ## 支持的Godot版本
@@ -71,6 +66,3 @@ velocity += acceleration * delta # 加速度为 Vector2 类型
 
 ## 支持的开发系统及平台
 Windows 10, 11 x86-64
-
-## 源码前置
-需要安装[Fast Syntax](https://github.com/Lazy-Rabbit-2001/GDExtension-Fast-Syntax)语言扩展包
