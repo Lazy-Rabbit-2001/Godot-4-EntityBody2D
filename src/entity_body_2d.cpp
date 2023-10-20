@@ -71,7 +71,7 @@ void EntityBody2D::_bind_methods() {
     ClassDB::bind_method(D_METHOD("use_friction", "miu"), &EntityBody2D::use_friction);
     ClassDB::bind_method(D_METHOD("jump", "jumping_speed", "is_accumulating_mode"), &EntityBody2D::jump, false);
     ClassDB::bind_method(D_METHOD("correct_on_wall_corner", "steps"), &EntityBody2D::correct_on_wall_corner, 4);
-    ClassDB::bind_method(D_METHOD("correct_onto_floor","steps"), &EntityBody2D::correct_onto_floor, 20);
+    ClassDB::bind_method(D_METHOD("correct_onto_floor","steps"), &EntityBody2D::correct_onto_floor, 8);
 }
 
 // Constructor and Destructor
@@ -87,7 +87,11 @@ EntityBody2D::EntityBody2D() {
 EntityBody2D::~EntityBody2D() {}
 
 // Built-in
-void EntityBody2D::_enter_tree() {}
+void EntityBody2D::_enter_tree() {
+    if (get_global_velocity().is_zero_approx()) {
+        set_velocity(velocity);
+    }
+}
 
 // Methods
 bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
@@ -95,7 +99,7 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
     
     // Previous velocity
     _velocity = velocity;
-    _velocity_global = CharacterBody2D::get_velocity();
+    _velocity_global = get_global_velocity();
 
     // Falling
     if (!is_on_floor()) {
@@ -212,9 +216,11 @@ void EntityBody2D::correct_on_wall_corner(const int steps) {
         if (!cl) {
             p = p_cur;
             set_velocity(_velocity);
-            break;
+            set_global_position(p);
+            return;
         }
     }
+    p_cur = p;
     // "Right" detection and correction
     for (int j = 0; j < steps; j++) {
         p_cur -= d;
@@ -223,8 +229,9 @@ void EntityBody2D::correct_on_wall_corner(const int steps) {
 
         if (!cl) {
             p = p_cur;
-            CharacterBody2D::set_velocity(_velocity_global);
-            break;
+            set_velocity(_velocity);
+            set_global_position(p);
+            return;
         }
     }
     set_global_position(p);
@@ -235,18 +242,22 @@ void EntityBody2D::correct_onto_floor(const int steps) {
     bool on_wall = is_on_wall();
     
     // Only on wall or falling speed > 0 can skip this detection
-    if (dot < 0.0 || UtilityFunctions::is_zero_approx(dot) || !on_wall || (on_wall && is_on_floor())) {
+    if (dot < 0.0 || !on_wall || (on_wall && is_on_floor())) {
         return;
     }
 
     // Initialization for current position, detect-in length and pushing length
     Vector2 p = get_global_position();
     Vector2 p_in = _velocity_global.normalized();
-    Vector2 p_push = p_in.project(get_gravity_direction());
-    Vector2 p_cur = p;
+    Vector2 p_push = p_in.project(get_up_direction());
+    Vector2 p_cur = p + p_in;
 
     // Looping for detection and correction
     for (int i = 0; i < steps; i++) {
+        if (abs(p_in.dot(get_gravity_direction())) == 1.0) {
+            break;
+        }
+
         // Everytime the detection is executed, the body is to be moved upwards and detect if there is any obstacle overlapping the body
         p_cur -= p_push;
         set_global_position(p_cur);
@@ -255,7 +266,7 @@ void EntityBody2D::correct_onto_floor(const int steps) {
         // If no any obstacle overlapping, then the looping is to be stopped and the velocity is to inherit the previous velocity
         if (!cl) {
             p = p_cur;
-            CharacterBody2D::set_velocity(_velocity_global);
+            set_velocity(_velocity);
             break;
         }
     }
