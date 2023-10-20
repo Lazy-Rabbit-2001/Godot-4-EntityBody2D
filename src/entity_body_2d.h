@@ -9,16 +9,17 @@ class EntityBody2D : public CharacterBody2D {
 
 private:
     // Exported properties
-    double speed;
-    Vector2 speed_direction;
-    bool speed_for_motion;
-    Vector2 gravity_direction;
-    Vector2 top_direction;
+    Vector2 velocity;
+    bool movement_local;
+
     double gravity;
     double max_falling_speed;
 
+    Vector2 top_direction;
+
     // Hiden properties
     Vector2 _velocity;
+    Vector2 _velocity_global;
     Vector2 _falling_velocity;
 
     // Method use
@@ -26,6 +27,8 @@ private:
 
 protected:
     static void _bind_methods();
+
+    double _get_delta();
 
 public:
     // Constructor and Destructor
@@ -36,7 +39,8 @@ public:
     void _enter_tree() override;
 
     // Methods
-    bool move_and_slide(const bool is_gravity_direction_rotated = true, const bool use_real_velocity = false);
+    bool move_and_slide(const bool use_real_velocity = false);
+    void analyse_global_velocity();
     void accelerate_x(const double acceleration, const double to);
     void accelerate_y(const double acceleration, const double to);
     void accelerate(const double acceleration, const Vector2 &to);
@@ -46,28 +50,21 @@ public:
     void correct_onto_floor(const int steps = 20);
 
     // Properties Setters and Getters
-    Vector2 get_real_up_direction() const;
-    Vector2 get_falling_velocity() const;
-    Vector2 get_falling_direction() const;
+    Vector2 get_gravity_direction() const;
     Vector2 get_previous_velocity() const;
+    Vector2 get_previous_global_velocity() const;
 
     bool is_leaving_ground() const;
     bool is_falling() const;
 
-    void set_speed(const double p_speed);
-    double get_speed() const;
+    void set_velocity(const Vector2 &p_velocity);
+    Vector2 get_velocity() const;
 
-    void set_speed_direction(const Vector2 &p_speed_direction);
-    Vector2 get_speed_direction() const;
+    void set_global_velocity(const Vector2 &p_global_velocity);
+    Vector2 get_global_velocity() const;
 
-    void set_speed_for_motion(const bool p_speed_for_motion);
-    bool is_speed_for_motion() const;
-
-    void set_motion(const Vector2 &p_motion);
-    Vector2 get_motion();
-
-    void set_gravity_direction(const Vector2 &p_gravity_direction);
-    Vector2 get_gravity_direction() const;
+    void set_movement_local(const bool p_movement_local);
+    bool is_movement_local() const;
 
     void set_gravity(const double p_gravity);
     double get_gravity() const;
