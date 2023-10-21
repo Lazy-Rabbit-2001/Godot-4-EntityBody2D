@@ -10,7 +10,7 @@ A GDExtension for Godot 4 to provide an EntityBody2D for 2D platform games
 # How to Use?
 This provides an extending class from `CharacterBody2D` named `EntityBody2D`, which offers extra properties and methods that developers can use when they are working on a 2D-platformer games.  
 
-`EntityBody2D` brings built-in gravity system, with `gravity`, `gravity_direction` and `max_falling_speed` presented to make designers get fast modification on gravity settings of a body inheriting from this class. In addition, another property `motion` is also provided to be edited so that a developer can fast set its velocity rotated by `global_rotation` of the `EntityBody2D` instance.  If wanting to set the initial velocity of the body through `EntityBody2D`'s inspector, developers can edit `speed` and adjust `speed_direction`, which will be reset after they are applied to `velocity`.
+`EntityBody2D` brings built-in gravity system, with `gravity` and `max_falling_speed` presented to make designers get fast modification on gravity settings of a body inheriting from this class. `velocity` of `EntityBody2D` is exposed in the inspector, so every developer can modify it directly to assign the body's initial velocity. Of course, another property `movement_local` is provided to make faster access to multi-gravity games.
 
 To make the gravity system totally implemented, `move_and_slide()` method has been hidden and redefined with two new parameters joining in: `is_gravity_direction_rotated` and `use_real_velocity`, which controls the acutal action that the body will perform when the method is being called.
 
@@ -51,7 +51,7 @@ If the `max_falling_speed` is greater than 0, the `velocity.y` will be limited w
 ### Basic extra methods
 Not only can a body run with new `move_and_slide()`, but they also have ability to be performed by other functions offered:
 
-* `accelerate_*()` -- with three versions: `accelerate_x()`, `accelerate_y()` and `accelerate()`, whose first params are `acceleration` in ***pixels/s²***, while the second ones are `to` in ***pixels/s***. They will move the x_speed/y_speed/velocity to the value of param `to` and they won't make the final value out of limitation. So if you want to accelerate a body without continuously, please code：
+* `accelerate_*()` -- with three versions: `accelerate_x()`, `accelerate_y()` and `accelerate()`, whose first params are `acceleration` in ***pixels/s²***, while the second ones are `to` in ***pixels/s***. They will move the x_speed/y_speed/velocity to the value of param `to` and they won't make the final value out of limitation. So if you want to accelerate a body continuously without any limitation, please code：
 ```GDScript
 velocity.x += acceleration * delta # acceleration is of float type
 velocity.y += acceleration * delta # acceleration is of float type
