@@ -36,7 +36,7 @@ In actual projects, the developers hope to edit the velocity in the inspector of
  
 Meanwhile, as `velocity` **shadows** the one in the parent class, the access to `velocity` in `EntityBody2D` is determined by `movement_local`, which will cause some unexpectations; if the `velocity` in `CharacterBody2D` should be modified, please use `global_velocity` instead of `velocity`.
 
-Let's have a example: If you have set `motion` of the body to `Vector2(10, 0)` with `global_rotation` PI/4(45°), the final velocity will be `Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)`  
+Let's have an example: If you have set `velocity` of a body to `Vector2(10, 0)` with `global_rotation` PI/4(45°) and `movement_local` being `true`, the final velocity will be `Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)`  
 
 ## `move_and_slide()` in `EntityBody2D`
 The core of the class is **redefined** `move_and_slide()` method, though its name maintains, and there are two new extra parameters that each developer needs to know to have a better understanding of its workflow.
