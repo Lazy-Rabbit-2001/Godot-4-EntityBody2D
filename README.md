@@ -58,7 +58,7 @@ velocity.y += acceleration * delta # acceleration is of float type
 velocity += acceleration * delta # acceleration is of Vector2 type
 ```
 * `jump()` -- this will make a body jump along the real up direction. This method allows two params, between which the former one is jumping speed in ***pixels/s***, while the latter one is a boolean, and if `true`, the final velocity will be add by /up direction * abs(jumping speed)/ rather than making falling speed 0 and then set the jumping speed
-* `use_friction()` -- this method, taking use of `lerp()`, to make the body slow down as if it has friction against the floor
+* `use_friction()` -- this method, taking use of `lerp()`, makes the body slow down when it is on the floor, as if it has friction against the ground.
 
 ### Correction methods
 During the development, the developers may find their character moving with some issues, especially when they are working on some games like Super Mario Bros., in which Mario can walk through one-tile gaps and they have no idea how to make a character walk over the gap when they are planning to make such a character; or such a situation where he, visually, jumps through by the side of a block, but due to the information difference led by his collision box, he acutally hits the block and starts to fall.  
