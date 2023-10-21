@@ -61,7 +61,7 @@ velocity += acceleration * delta # acceleration is of Vector2 type
 * `use_friction()` -- this method, taking use of `lerp()`, makes the body slow down when it is on the floor, as if it has friction against the ground.
 
 ### Correction methods
-During the development, the developers may find their character moving with some issues, especially when they are working on some games like Super Mario Bros., in which Mario can walk through one-tile gaps and they have no idea how to make a character walk over the gap when they are planning to make such a character; or such a situation where he, visually, jumps through by the side of a block, but due to the information difference led by his collision box, he acutally hits the block and starts to fall.  
+During the development, the developers may find their characters moving with some issues, especially when they are working on some games like Super Mario Bros., in which Mario can walk through one-tile gaps and they have no idea how to make a character walk over the gap when they are planning to make such a feature; or such a situation where he, visually, should be jumping by the side of a block, but due to the information difference led by his collision box, he acutally hits the block and starts to fall.  
 Thus, two methods `correct_on_wall_corner()` and `correct_onto_floor()` are implemented. The first method will solve the issue of the second situation mentioned above, making the body jump by the side of one block smoothly; while the second method deals with the problem of the body not being able to pass the one-tile gap.
 
 # Known Issues
