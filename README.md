@@ -25,11 +25,11 @@ Gravity is the significance for this extension. Hereby a property list will be s
 Remembering these properties and their usage may help developers better understand how the gravity will affect a body.
 
 ## Up Direction, Top Direction and Gravity Direction
-In `EntityBody2D`, `up_direction` is not an absolute one if a body is moving via `move_and_slide()`. In such situation, `up_direction` is one affected by body's `global_rotation`, and you need to get access to `top_direction` to get one without any rotation.  
+In `EntityBody2D`, `up_direction` is not an absolute up direction if a body is moving via `move_and_slide()`. In such situation, `up_direction` is one affected by the body's `global_rotation`, and you need to get access to `top_direction` to get an up direction without any rotation.  
 
 E.g: If the `top_direction` is `Vector2(0, -1)` with `global_rotation` PI/4(45°), the `up_direction` will become `Vector2(0, -1).rotated(PI/4) => Vector2(√2/2, -√2/2)`
 
-Before v1.6, there is a property `gravity_direction` that helps developers to decide to which direction the gravity effects the bodyl. However, for more convenience, the property has been discarded and its functionality is now replaced with **`up_direction` in reverse** to be the gravity direction, which can be got via `get_gravity_direction()` method.
+Before v1.6, there is a property `gravity_direction` that helps developers to decide to which direction the gravity effects the body. However, for more convenience, the property has been discarded and its functionality is now replaced with **`up_direction` in reverse** to be the gravity direction, which can be got via `get_gravity_direction()` method.
 
 ## Velocity
 In actual projects, the developers hope to edit the velocity in the inspector of a body so that they can assign the initial velocity of the body. Therefore, `velocity` is exposed for this purpose. Also, `movement_local` is presented to make the development of a multi-direction-gravity game or, in some situations, fast-to-set velocity more convenient, because this property makes `velocity` with two situations: When `true`, the actual movement will be rotated by `global_rotation`; when `false`, the actual movement is nothing different from directly setting `velocity` in `CharacterBody2D`. 
