@@ -10,7 +10,7 @@
 # 使用说明
 本插件提供`EntityBody2D`节点类，继承自`CharacterBody2D`节点类。`EntityBody2D`内部新增多种属性与方法以适应开发2D平台游戏的开发者们的需求。
 
-`EntityBody2D`类自带重力系统，其中，`gravity`, `gravity_direction` and `max_falling_speed`这三个属性可以让开发者快速调节物体的重力属性。同时，在该类中也新增了一个`motion`属性，会自动计算经由`global_rotation`旋转后得到的`velocity`并赋值给`velocity`，当然，开发者也可以直接通过`EntityBody2D`的检查器来直接修改`velocity`属性。  
+`EntityBody2D`类自带重力系统，其中，`gravity`, 和`max_falling_speed`这两个属性可以让开发者快速调节物体的重力属性。同时，`EntityBody2D`的`velocity`属性暴露在节点检查器中，方便开发者修改以设置该物体的初速度。除此之外，为了方便开发者制作多向重力游戏，也引入了`movement_local`属性来进行控制。
 为了能够让重力系统真正发挥作用，本人把`move_and_slide()`这一父类方法进行了重定义，同时向其中新增了两个属性：`is_gravity_direction_rotated`和`use_real_velocity`，这两个属性会影响到该物体最终的运动结果。当然，`EntityBody2D`中还有许多新加入的方法，如`accelerate_*()`、`jump()`、`use_friction()`等方法，能够向开发者提供更加直观快捷的接口。如果想要通过`EntityBody2D`的检视器来修改其初始速度，可以使用`speed`、`speed_direction`和`speed_for_motion`这三个开放属性。这三个属性会在初速度初始化后恢复为默认值。
 
 ## 重力系统
@@ -27,8 +27,8 @@
 在1.6版本前，有一个专门设置重力方向的属性`gravity_direction`，但后来出于便捷性考虑，便弃用了该属性，取而代之的则是`up_direction`属性的反向量，可通过`get_gravity_direction()`方法快速获取。
 
 ## 相对速度和初速度
-实际上，2D平台运动游戏的开发者希望能够直接在节点检视器里给一个`EntityBody2D`实例赋予初始速度，为此，`EntityBody2D`特地将`velocity`属性暴露在检视器内。除此之外，还引入了一个`movement_local`属性，在做多重力游戏或者在一定情况下快速设置速度时非常实用。该属性为true时，`velocity`属性将会根据`global_rotation`而进行旋转；若为false，则`velocity`属性就等于该物体的全局速度，跟给`CharacterBody2D`设置的`velocity`属性并无二致。  
-需要注意的是：由于`EntityBody2D`中的`velocity`属性覆盖了在父类中的`velocity`属性，且受`movement_local`属性影响，因此可能会出现与预期相悖的一些情况。如果确实需要获取在父类中的`velocity`（也就是全局速度），请访问`global_velocity`属性。
+实际上，2D平台运动游戏的开发者希望能够直接在节点检视器里给一个`EntityBody2D`实例赋予初始速度，为此，`EntityBody2D`特地将`velocity`属性暴露在检视器内。除此之外，还引入了一个`movement_local`属性，在做多向重力游戏或者在一定情况下快速设置速度时非常实用。该属性为true时，`velocity`属性将会根据`global_rotation`而进行旋转；若为false，则`velocity`属性就等于该物体的全局速度，跟给`CharacterBody2D`设置`velocity`属性并无二致。  
+需要注意的是：由于`EntityBody2D`中的`velocity`属性**覆盖**了在父类中的`velocity`属性，且受`movement_local`属性影响，因此可能会出现与预期相悖的一些情况。如果确实需要获取在父类中的`velocity`（也就是全局速度），请访问`global_velocity`属性。
 
 同样举个例子：若`motion`为`Vector2(10, 0)`，`global_rotation`为PI/4(45°)，则实际速度为`Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)`  
 
