@@ -10,7 +10,7 @@ A GDExtension for Godot 4 to provide an EntityBody2D for 2D platform games
 # How to Use?
 This provides an extending class from `CharacterBody2D` named `EntityBody2D`, which offers extra properties and methods that developers can use when they are working on a 2D-platformer games.  
 
-`EntityBody2D` brings built-in gravity system, with `gravity` and `max_falling_speed` presented to make designers get fast modification on gravity settings of a body inheriting from this class. `velocity` of `EntityBody2D` is exposed in the inspector, so every developer can modify it directly to assign the body's initial velocity. Of course, another property `movement_local` is provided to make faster access to multi-gravity games.
+`EntityBody2D` brings built-in gravity system, with `gravity` and `max_falling_speed` presented to make designers get fast modification on gravity settings of a body inheriting from this class. `velocity` of `EntityBody2D` is exposed in the inspector, so every developer can modify it directly to assign the body's initial velocity. Of course, another property `movement_local` is provided to make faster access to multi-direction-gravity games.
 
 To make the gravity system totally implemented, `move_and_slide()` method has been hidden and redefined with two new parameters joining in: `is_gravity_direction_rotated` and `use_real_velocity`, which controls the acutal action that the body will perform when the method is being called.
 
@@ -32,7 +32,7 @@ E.g: If the `top_direction` is `Vector2(0, -1)` with `global_rotation` PI/4(45°
 Before v1.6, there is a property `gravity_direction` that helps developers to decide to which direction the gravity effects the bodyl. However, for more convenience, the property has been discarded and its functionality is now replaced with **`up_direction` in reverse** to be the gravity direction, which can be got via `get_gravity_direction()` method.
 
 ## Velocity
-In actual projects, the developers hope to edit the velocity in the inspector of a body so that they can assign the initial velocity of the body. Therefore, `velocity` is exposed for this purpose. Also, `movement_local` is presented to make the development of a multi-gravity game or, in some situations, fast-to-set velocity more convenient, because this property makes `velocity` with two situations: When `true`, the actual movement will be rotated by `global_rotation`; when `false`, the actual movement is nothing different from directly setting `velocity` in `CharacterBody2D`. 
+In actual projects, the developers hope to edit the velocity in the inspector of a body so that they can assign the initial velocity of the body. Therefore, `velocity` is exposed for this purpose. Also, `movement_local` is presented to make the development of a multi-direction-gravity game or, in some situations, fast-to-set velocity more convenient, because this property makes `velocity` with two situations: When `true`, the actual movement will be rotated by `global_rotation`; when `false`, the actual movement is nothing different from directly setting `velocity` in `CharacterBody2D`. 
  
 Meanwhile, as `velocity` **shadows** the one in the parent class, the access to `velocity` in `EntityBody2D` is determined by `movement_local`, which will cause some unexpectations; if the `velocity` in `CharacterBody2D` should be modified, please use `global_velocity` instead of `velocity`.
 
