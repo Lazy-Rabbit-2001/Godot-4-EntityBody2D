@@ -12,7 +12,7 @@ This provides an extending class from `CharacterBody2D` named `EntityBody2D`, wh
 
 `EntityBody2D` brings built-in gravity system, with `gravity` and `max_falling_speed` presented to make designers get fast modification on gravity settings of a body inheriting from this class. `velocity` of `EntityBody2D` is exposed in the inspector, so every developer can modify it directly to assign the body's initial velocity. Of course, another property `movement_local` is provided to make faster access to multi-direction-gravity games.
 
-To make the gravity system totally implemented, `move_and_slide()` method has been hidden and redefined with two new parameters joining in: `is_gravity_direction_rotated` and `use_real_velocity`, which controls the acutal action that the body will perform when the method is being called.
+To make the gravity system totally implemented, `move_and_slide()` method has been hidden and redefined, with a new parameter `use_real_velocity`, which controls the acutal action that the body will perform when the method is being called.
 
 Also, there are a bunch of methods provided as well, such as `accelerate_*()`, `jump()` and `use_friction()`, helping developers to make their development faster and clearer
 
