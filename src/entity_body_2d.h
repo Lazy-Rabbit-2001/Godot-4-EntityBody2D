@@ -47,7 +47,7 @@ public:
     void use_friction(const double miu);
     void jump(const double jumping_speed, const bool is_accumulating_mode = false);
     void correct_on_wall_corner(const int steps = 4);
-    void correct_onto_floor(const int steps = 8);
+    void correct_onto_floor(const int steps = 20);
 
     // Properties Setters and Getters
     Vector2 get_gravity_direction() const;

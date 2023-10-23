@@ -71,7 +71,7 @@ void EntityBody2D::_bind_methods() {
     ClassDB::bind_method(D_METHOD("use_friction", "miu"), &EntityBody2D::use_friction);
     ClassDB::bind_method(D_METHOD("jump", "jumping_speed", "is_accumulating_mode"), &EntityBody2D::jump, false);
     ClassDB::bind_method(D_METHOD("correct_on_wall_corner", "steps"), &EntityBody2D::correct_on_wall_corner, 4);
-    ClassDB::bind_method(D_METHOD("correct_onto_floor","steps"), &EntityBody2D::correct_onto_floor, 8);
+    ClassDB::bind_method(D_METHOD("correct_onto_floor","steps"), &EntityBody2D::correct_onto_floor, 20);
 }
 
 // Constructor and Destructor
@@ -250,7 +250,7 @@ void EntityBody2D::correct_onto_floor(const int steps) {
     Vector2 p = get_global_position();
     Vector2 p_in = _velocity_global.normalized();
     Vector2 p_push = p_in.project(get_up_direction());
-    Vector2 p_cur = p + p_in;
+    Vector2 p_cur = p;
 
     // Looping for detection and correction
     for (int i = 0; i < steps; i++) {
