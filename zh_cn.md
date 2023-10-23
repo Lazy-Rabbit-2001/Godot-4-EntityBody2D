@@ -50,7 +50,7 @@ velocity.x += acceleration * delta # 加速度为 float 类型
 velocity.y += acceleration * delta # 加速度为 float 类型
 velocity += acceleration * delta # 加速度为 Vector2 类型
 ```
-* `jump()`方法会让该物体沿上方向进行跳跃，跳跃速度的单位为***pixels/s***，还有一个布尔值参数，若为`true`，则该物体不会先截断下落速度然后赋予跳跃速度，而是直接累加到当前速度上，适合用于增强跳跃高度。
+* `jump()`方法会让该物体`up_direction`进行跳跃（实际上是**令`velocity.y`为负值**），跳跃速度的单位为***pixels/s***，还有一个布尔值参数，若为`true`，则该物体不会先截断下落速度然后赋予跳跃速度，而是直接累加到当前速度上，适合用于增强跳跃高度。
 * `use_friction()`方法利用`lerp()`方法来让该物体**在地面上运动时**产生摩擦效果
 
 ### 校正方法
