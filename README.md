@@ -39,7 +39,7 @@ Meanwhile, as `velocity` **shadows** the one in the parent class, the access to 
 Let's have an example: If you have set `velocity` of a body to `Vector2(10, 0)` with `global_rotation` PI/4(45°) and `movement_local` being `true`, the final velocity will be `Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)`  
 
 ## `move_and_slide()` in `EntityBody2D`
-The core of the class is **redefined** `move_and_slide()` method, though its name maintains, and there are two new extra parameters that each developer needs to know to have a better understanding of its workflow.
+The core of the class is **redefined** `move_and_slide()` method, though its name maintains, there is added a new extra parameters that each developer needs to know to have a better understanding of its workflow.
 
 **Note:** Values in "()" are default values of representative parameters
 * `bool use_real_velocity (false)` -- this will determine the final performance of the body's movement. In case of being `true`, the body will act more like it does in realler physics environment.
