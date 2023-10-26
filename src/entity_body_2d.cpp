@@ -183,10 +183,9 @@ void EntityBody2D::jump(const double jumping_speed, const bool is_accumulating_m
 
 void EntityBody2D::correct_on_wall_corner(const int steps) {
     double dot = UtilityFunctions::snappedf(_velocity.dot(get_up_direction()), 0.01);
-    bool on_ceiling = is_on_ceiling();
     
     // Only on ceiling or falling speed < 0 can skip this detection
-    if (dot < 0.0 || UtilityFunctions::is_zero_approx(dot) || !on_ceiling) {
+    if (dot < 0.0 || UtilityFunctions::is_zero_approx(dot) || !is_on_ceiling() || is_on_floor()) {
         return;
     }
 
@@ -242,7 +241,7 @@ void EntityBody2D::correct_onto_floor(const int steps) {
     bool on_wall = is_on_wall();
     
     // Only on wall or falling speed > 0 can skip this detection
-    if (dot < 0.0 || !on_wall || (on_wall && is_on_floor())) {
+    if (dot < 0.0 || !on_wall || (on_wall && is_on_floor()) || is_on_ceiling()) {
         return;
     }
 
