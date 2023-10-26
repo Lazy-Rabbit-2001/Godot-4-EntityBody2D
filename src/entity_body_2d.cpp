@@ -132,14 +132,15 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
     }
 
     // Signals emission
+    Ref<KinematicCollision2D> &last_slide_collison = get_last_slide_collision();
     if (is_on_wall()) {
-        emit_signal("collided_wall", get_last_slide_collision());
+        emit_signal("collided_wall", last_slide_collison);
     }
     if (is_on_ceiling()) {
-        emit_signal("collided_ceiling", get_last_slide_collision());
+        emit_signal("collided_ceiling", last_slide_collison);
     }
     if (is_on_floor()) {
-        emit_signal("collided_floor", get_last_slide_collision());
+        emit_signal("collided_floor", last_slide_collison);
     }
 
     return ret;
@@ -190,7 +191,7 @@ void EntityBody2D::correct_on_wall_corner(const int steps) {
     }
 
     // Prevent from sliding up along reversed slope
-    Ref<KinematicCollision2D> k = get_last_slide_collision();
+    Ref<KinematicCollision2D> &k = get_last_slide_collision();
     if (k == nullptr) {
         return;
     }
