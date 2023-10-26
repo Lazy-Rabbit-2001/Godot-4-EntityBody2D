@@ -253,7 +253,9 @@ void EntityBody2D::correct_onto_floor(const int steps) {
 
     // Looping for detection and correction
     for (int i = 0; i < steps; i++) {
-        if (abs(p_in.dot(get_gravity_direction())) == 1.0) {
+        // Fixes possible misdetection when mario is moving against a "Γ" corner
+        double d = abs(UtilityFunctions::snappedf(p_in.dot(get_gravity_direction()), 0.0001));
+        if (d == 1.0 || UtilityFunctions::is_zero_approx(d)) {
             break;
         }
 
