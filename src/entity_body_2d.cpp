@@ -92,7 +92,7 @@ EntityBody2D::~EntityBody2D() {}
 
 // Built-in
 void EntityBody2D::_enter_tree() {
-    if (get_global_velocity().is_zero_approx()) {
+    if (get_global_velocity().is_zero_approx() && !velocity.is_zero_approx()) {
         set_velocity(velocity);
     }
 }
