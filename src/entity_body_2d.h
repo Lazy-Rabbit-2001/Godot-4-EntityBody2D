@@ -1,5 +1,6 @@
 #pragma once
 
+#include <godot_cpp/classes/node2d.hpp>
 #include <godot_cpp/classes/character_body2d.hpp>
 
 using namespace godot;
@@ -55,6 +56,8 @@ public:
     Vector2 get_gravity_direction() const;
     Vector2 get_previous_velocity() const;
     Vector2 get_previous_global_velocity() const;
+    TypedArray<Node2D> get_colliders();
+    Node2D* get_last_collider();
 
     bool is_leaving_ground() const;
     bool is_falling() const;

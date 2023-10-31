@@ -1,15 +1,15 @@
 ﻿#include "entity_body_2d.h"
 
-#include <godot_cpp/classes/physics_server2d.hpp>
+#include <godot_cpp/classes/kinematic_collision2d.hpp>
 #include <godot_cpp/classes/script.hpp>
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 void EntityBody2D::_bind_methods() {
     // Register signals
-    ADD_SIGNAL(MethodInfo("collided_wall", PropertyInfo(Variant::OBJECT, "collision_info")));
-    ADD_SIGNAL(MethodInfo("collided_ceiling", PropertyInfo(Variant::OBJECT, "collision_info")));
-    ADD_SIGNAL(MethodInfo("collided_floor", PropertyInfo(Variant::OBJECT, "collision_info")));
+    ADD_SIGNAL(MethodInfo("collided_wall"));
+    ADD_SIGNAL(MethodInfo("collided_ceiling"));
+    ADD_SIGNAL(MethodInfo("collided_floor"));
 
     // Register properties
     // Vector2 velocity
@@ -61,6 +61,8 @@ void EntityBody2D::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_gravity_direction"), &EntityBody2D::get_gravity_direction);
     ClassDB::bind_method(D_METHOD("get_previous_velocity"), &EntityBody2D::get_previous_velocity);
     ClassDB::bind_method(D_METHOD("get_previous_global_velocity"), &EntityBody2D::get_previous_global_velocity);
+    ClassDB::bind_method(D_METHOD("get_colliders"), &EntityBody2D::get_colliders);
+    ClassDB::bind_method(D_METHOD("get_last_collider"), &EntityBody2D::get_last_collider);
     ClassDB::bind_method(D_METHOD("is_leaving_ground"), &EntityBody2D::is_leaving_ground);
     ClassDB::bind_method(D_METHOD("is_falling"), &EntityBody2D::is_falling);
     ClassDB::bind_method(D_METHOD("move_and_slide", "use_real_velocity"), &EntityBody2D::move_and_slide, false);
@@ -311,6 +313,35 @@ Vector2 EntityBody2D::get_previous_velocity() const {
 Vector2 EntityBody2D::get_previous_global_velocity() const {
     return _velocity_global;
 }
+
+TypedArray<Node2D> EntityBody2D::get_colliders() {
+    TypedArray<Node2D> objs = Array::make();
+
+    for(int i = 0; i < get_slide_collision_count(); i++) {
+        Ref<KinematicCollision2D> &kc = get_slide_collision(i);
+        if (!UtilityFunctions::is_instance_valid(kc)) {
+            continue;
+        }
+
+        Object *o = Object::cast_to<Node2D>(kc->get_collider());
+        if (o == nullptr) {
+            continue;
+        }
+
+        objs.append(o);
+    }
+
+    return objs;
+}
+
+Node2D* EntityBody2D::get_last_collider() {
+    Ref<KinematicCollision2D> &kc = get_last_slide_collision();
+    if (!UtilityFunctions::is_instance_valid(kc)) {
+        return nullptr;
+    }
+    return Object::cast_to<Node2D>(kc->get_collider());
+}
+
 
 bool EntityBody2D::is_leaving_ground() const {
     return get_velocity().dot(get_up_direction()) > 0.0;
