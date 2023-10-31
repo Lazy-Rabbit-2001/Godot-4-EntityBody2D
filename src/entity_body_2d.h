@@ -44,6 +44,8 @@ public:
     void accelerate_x(const double acceleration, const double to);
     void accelerate_y(const double acceleration, const double to);
     void accelerate(const double acceleration, const Vector2 &to);
+    void turn_x();
+    void turn_y();
     void use_friction(const double miu);
     void jump(const double jumping_speed, const bool is_accumulating_mode = false);
     void correct_on_wall_corner(const int steps = 4);

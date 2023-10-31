@@ -67,6 +67,8 @@ void EntityBody2D::_bind_methods() {
     ClassDB::bind_method(D_METHOD("analyse_global_velocity"), &EntityBody2D::analyse_global_velocity);
     ClassDB::bind_method(D_METHOD("accelerate_x", "acceleration", "to"), &EntityBody2D::accelerate_x);
     ClassDB::bind_method(D_METHOD("accelerate_y", "acceleration", "to"), &EntityBody2D::accelerate_y);
+    ClassDB::bind_method(D_METHOD("turn_x"), &EntityBody2D::turn_x);
+    ClassDB::bind_method(D_METHOD("turn_y"), &EntityBody2D::turn_y);
     ClassDB::bind_method(D_METHOD("accelerate", "acceleration", "to"), &EntityBody2D::accelerate);
     ClassDB::bind_method(D_METHOD("use_friction", "miu"), &EntityBody2D::use_friction);
     ClassDB::bind_method(D_METHOD("jump", "jumping_speed", "is_accumulating_mode"), &EntityBody2D::jump, false);
@@ -163,6 +165,24 @@ void EntityBody2D::accelerate_y(const double acceleration, const double to) {
 void EntityBody2D::accelerate(const double acceleration, const Vector2 &to) {
     velocity = velocity.move_toward(to, acceleration * _get_delta());
     set_velocity(velocity);
+}
+
+void EntityBody2D::turn_x() {
+    if (_velocity.x != 0.0) {
+        velocity.x = -_velocity.x;
+    }
+    else {
+        velocity.x *= -1.0;
+    }
+}
+
+void EntityBody2D::turn_y() {
+    if (_velocity.y != 0.0) {
+        velocity.y = -_velocity.y;
+    }
+    else {
+        velocity.y *= -1.0;
+    }
 }
 
 void EntityBody2D::use_friction(const double miu) {
