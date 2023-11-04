@@ -11,7 +11,7 @@
 本插件提供`EntityBody2D`节点类，继承自`CharacterBody2D`节点类。`EntityBody2D`内部新增多种属性与方法以适应开发2D平台游戏的开发者们的需求。
 
 `EntityBody2D`类自带重力系统，其中，`gravity`, 和`max_falling_speed`这两个属性可以让开发者快速调节物体的重力属性。同时，`EntityBody2D`的`velocity`属性暴露在节点检查器中，方便开发者修改以设置该物体的初速度。
-对于多向重力游戏，本插件的`EntityBody2D`还可以与`Area2D`发生互动来实现更加逼真的重力效果，只需调整该`Area2D`的`gravity_space_override`属性及其相关属性即可。  
+对于多向重力游戏，本插件的`EntityBody2D`还可以与`Area2D`发生互动来实现更加逼真的重力效果，只需调整该`Area2D`的`gravity_space_override`属性及其相关属性即可。当然，本插件也实现了物体阻尼，只要物体进入了启用`linear_damp_space_override`的`Area2D`区域，该物体就会受到该区域的阻尼影响而减速。  
 大部分情况下，如果只调整了`EntityBody2D`的`velocity`属性，则该物体在进入修改了重力环境的`Area2D`的过程中，其运动结果会出现问题，尤其是行走这一行为，同时还会导致`velocity`的精确度严重降低。为此，本插件引入了`speed`属性，专门为这类物体打造，该属性会强制设置物体的行走速度，使其行走不受更改重力环境的影响，并维持物体的`velocity`精度，使其结果准确可靠。  
 为了能够让重力系统真正发挥作用，本人把`move_and_slide()`这一父类方法进行了重定义，同时向其中新增了个`use_real_velocity`参数，会影响到该物体最终的运动结果。当然，`EntityBody2D`中还有许多新加入的方法，如`accelerate_*()`、`jump()`、`use_friction()`等方法，能够向开发者提供更加直观快捷的接口。
 
