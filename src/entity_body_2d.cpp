@@ -43,6 +43,13 @@ void EntityBody2D::_bind_methods()
         "EntityBody2D", PropertyInfo(Variant::BOOL, "damp_mode"),
         "set_damp_mode", "is_damp_mode"
     );
+    // bool damp_min_speed_ratio
+    ClassDB::bind_method(D_METHOD("get_damp_min_speed_ratio"), &EntityBody2D::get_damp_min_speed_ratio);
+    ClassDB::bind_method(D_METHOD("set_damp_min_speed_ratio", "p_damp_min_speed_ratio"), &EntityBody2D::set_damp_min_speed_ratio);
+    ClassDB::add_property(
+        "EntityBody2D", PropertyInfo(Variant::FLOAT, "damp_min_speed_ratio", PROPERTY_HINT_RANGE, "0.1, 1.0, 0.0001, suffix:x"),
+        "set_damp_min_speed_ratio", "get_damp_min_speed_ratio"
+    );
     // bool autobody
     ClassDB::bind_method(D_METHOD("is_autobody"), &EntityBody2D::is_autobody);
     ClassDB::bind_method(D_METHOD("set_autobody", "p_autobody"), &EntityBody2D::set_autobody);
@@ -118,6 +125,7 @@ EntityBody2D::EntityBody2D() {
     // Properties' intialization
     velocity = Vector2(0, 0);
     damp_mode = false;
+    damp_min_speed_ratio = 0.4;
     autobody = true;
     speed = 0.0;
     gravity = 0.0;
@@ -160,10 +168,13 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
     }
     set_up_direction(top_direction.rotated(get_global_rotation()));
 
-    // Constant speed
+    // Damp & speed
     double rot = get_up_direction().angle() + Math_PI/2.0;
     if (autobody) {
-        speed = UtilityFunctions::move_toward(speed, 0.0, damp_mode ? get_damp() : 0.0);
+        if (_init_speed == 0.0) {
+            _init_speed = speed;
+        }
+        speed = UtilityFunctions::move_toward(speed, _init_speed * damp_min_speed_ratio, damp_mode ? get_damp() : 0.0);
         Vector2 vrot = gv.rotated(-rot);
         vrot.x = speed;
         gv = vrot.rotated(rot);
@@ -171,7 +182,10 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
     else {
         Vector2 gvly = gv.project(grdir);
         Vector2 gvlx = gv - gvly;
-        gvlx = gvlx.move_toward(Vector2(), damp_mode ? get_damp() : 0.0);
+        if (_init_velocity_global_axis_x == 0.0) {
+            _init_velocity_global_axis_x = gvlx.length();
+        }
+        gvlx = gvlx.move_toward(gvlx.normalized() * _init_velocity_global_axis_x * damp_min_speed_ratio, damp_mode ? get_damp() : 0.0);
         gv = gvlx + gvly;
     }
 
@@ -501,6 +515,14 @@ void EntityBody2D::set_damp_mode(const bool p_damp_mode) {
 
 bool EntityBody2D::is_damp_mode() const {
     return damp_mode;
+}
+
+void EntityBody2D::set_damp_min_speed_ratio(const double p_damp_min_speed_ratio) {
+    damp_min_speed_ratio = p_damp_min_speed_ratio;
+}
+
+double EntityBody2D::get_damp_min_speed_ratio() const {
+    return damp_min_speed_ratio;
 }
 
 void EntityBody2D::set_autobody(const bool p_autobody) {

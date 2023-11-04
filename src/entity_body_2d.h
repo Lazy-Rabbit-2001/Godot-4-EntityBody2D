@@ -14,6 +14,7 @@ private:
     // Exported properties
     Vector2 velocity;
     double damp_mode;
+    double damp_min_speed_ratio;
     bool autobody;
     double speed;
 
@@ -28,6 +29,11 @@ private:
     Vector2 _velocity;
     Vector2 _velocity_global;
     double _speed;
+
+    double _init_speed = 0.0;
+    double _init_velocity_global_axis_x = 0.0;
+    double _damped_min_speed;
+    double _damped_min_velocity_global_axis_x;
 
 protected:
     static void _bind_methods();
@@ -77,6 +83,9 @@ public:
 
     void set_damp_mode(const bool p_damp_mode);
     bool is_damp_mode() const;
+
+    void set_damp_min_speed_ratio(const double p_damp_min_speed_ratio);
+    double get_damp_min_speed_ratio() const;
 
     void set_autobody(const bool p_autobody);
     bool is_autobody() const;
