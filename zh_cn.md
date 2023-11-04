@@ -36,7 +36,7 @@
 
 同样举个例子：若`velocity`为`Vector2(10, 0)`，`global_rotation`为PI/4(45°)，`movement_local`为`true`，则实际速度为`Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)`  
 
-In most situations, some objects, like players and enemies, will behave weirdly, especially when they are walking. If there is only velocity modified, they will walk unstably with incorrect velocity being set. To solve this problem, it is recommended and required to use `speed` for this situation to take the place of `velocity` setting. This property will force the velocity to fit for walking to make the behavior more smooth and stable. 大部分情况下，诸如玩家、敌人这类物体，其运动会在切换重力场的过程中发生问题，尤其是其行走运动。仅修改`velocity`属性会导致其行走不正常，`velocity`的结果出现异常。为解决这类问题，强烈建议设置`speed`属性来完成行走的属性设置，该属性通过强制设置行走速度来保证物体的行走行为平稳如履，`velocity`的结果无异常情况。
+大部分情况下，诸如玩家、敌人这类物体，其运动会在切换重力场的过程中发生问题，尤其是其行走运动。仅修改`velocity`属性会导致其行走不正常，`velocity`的结果出现异常。为解决这类问题，强烈建议设置`speed`属性来完成行走的属性设置，该属性通过强制设置行走速度来保证物体的行走行为平稳如履，`velocity`的结果无异常情况。**（需要先开启`autobody`属性！）**
 
 ## `EntityBody2D`中重定义的`move_and_slide()`方法
 该节点类的另一个核心点便是**重定义后**的`move_and_slide()`方法，虽然方法名字与父类相同，但多了两个参数，开发者了解这些参数后能够对自己的游戏开发有所帮助。
