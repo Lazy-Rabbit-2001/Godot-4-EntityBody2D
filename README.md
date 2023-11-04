@@ -34,7 +34,7 @@ In `EntityBody2D`, `up_direction` is not an absolute up direction if a body is m
 E.g: If the `top_direction` is `Vector2(0, -1)` with `global_rotation` PI/4(45°), the `up_direction` will become `Vector2(0, -1).rotated(PI/4) => Vector2(√2/2, -√2/2)`
 
 Before v1.6, there is a property `gravity_direction` that helps developers to decide to which direction the gravity effects the body. However, for more convenience, the property has been discarded and its functionality is now replaced with **`up_direction` in reverse** to be the gravity direction, which can be got via `get_gravity_direction()` method.
-From v2.0, gravity direction is controlled by an `Area2D`, and please see [Gravity](gravity).
+From v2.0, gravity direction is controlled by an `Area2D`, and please see [Gravity](#gravity).
 
 ## Velocity and Speed
 In actual projects, the developers hope to edit the velocity in the inspector of a body so that they can assign the initial velocity of the body. Therefore, `velocity` is exposed for this purpose. However, this `velocity` is one relative to the body's `global_rotation`, and if you want to get access to the `velocity` in `CharacterBody2D`(global velocity), please use `global_velocity` instead of `velocity`.
