@@ -29,7 +29,7 @@
 `EntityBody2D`中的`up_direction`在参与`move_and_slide()`方法的调用时，并非绝对意义上的上方向，在此情形下，此“上方向”为该物体在受到`global_rotation`影响下的上方向，如果需要不受`global_rotation`影响的“上方向”（即**头顶对向**），请访问`top_direction`属性。  
 举个例子：若`top_direction`为`Vector2(0, -1)`，`global_rotation`为PI/4(45°)，则该物体的上方向为`Vector2(0, -1).rotated(PI/4) => Vector2(√2/2, -√2/2)`  
 在1.6版本前，有一个专门设置重力方向的属性`gravity_direction`，但后来出于便捷性考虑，便弃用了该属性，取而代之的则是`up_direction`属性的反向量，可通过`get_gravity_direction()`方法快速获取。
-从2.0版本起，重力方向由`Area2D`节点控制，见[Gravity](gravity)条目。  
+从2.0版本起，重力方向由`Area2D`节点控制，见[Gravity](#gravity)条目。  
 
 ## 速度与行走速度
 实际上，一些开发者希望在开发某些2D平台运动游戏时，能够直接在节点检视器里给一个`EntityBody2D`实例赋予初始速度，为此，`EntityBody2D`特地将`velocity`属性暴露在检视器内。然而该`velocity`是相对于物体的`global_rotation`而言的，如需使用父类`CharacterBody2D`的`velocity`（全局速度），请使用`global_velocity`属性。  
