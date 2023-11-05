@@ -25,6 +25,7 @@ Gravity is the significance for this extension. Hereby a property list will be s
 * `max_falling_speed` -- defines how great the falling speed is, and if the value is set to 0, there will be no limitation on the falling speed. The unit is ***pixels/s***
 
 For gravity in other directions, please use an `Area2D` and adjust its `gravity_space_override` to a value rather than "Disabled", and then change the settings popping right after the mode gets changed.
+**(WARNING: If `autobody` mode is on while `global_rotation_to_gravity_direction` is off, the gravity in other direction will work abnormally!)**
 
 Remembering these properties and their usage may help developers better understand how the gravity will affect a body.
 
