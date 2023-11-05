@@ -25,7 +25,9 @@ Gravity is the significance for this extension. Hereby a property list will be s
 * `max_falling_speed` -- defines how great the falling speed is, and if the value is set to 0, there will be no limitation on the falling speed. The unit is ***pixels/s***
 
 For gravity in other directions, please use an `Area2D` and adjust its `gravity_space_override` to a value rather than "Disabled", and then change the settings popping right after the mode gets changed.
-**(WARNING: If `autobody` mode is on while `global_rotation_to_gravity_direction` is off, the gravity in other direction will work abnormally!)**
+```diff
+- (WARNING: If `autobody` mode is on while `global_rotation_to_gravity_direction` is off, the gravity in other direction will work abnormally!)**
+```
 
 Remembering these properties and their usage may help developers better understand how the gravity will affect a body.
 
@@ -42,7 +44,10 @@ In actual projects, the developers hope to edit the velocity in the inspector of
 
 Let's have an example: If you have set `velocity` of a body to `Vector2(10, 0)` with `global_rotation` PI/4(45°), the final velocity will be `Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)`  
 
-In most situations, some objects, like players and enemies, will behave weirdly during the change of gravity field, especially when they are walking. If there is only velocity modified, they will walk unstably with incorrect velocity being set. To solve this problem, it is recommended and required to use `speed` for this situation to take the place of `velocity` setting. This property will force the velocity to fit for walking to make the behavior more smooth and stable. **(The property`autobody` should be turned on first!)**  
+In most situations, some objects, like players and enemies, will behave weirdly during the change of gravity field, especially when they are walking. If there is only velocity modified, they will walk unstably with incorrect velocity being set. To solve this problem, it is recommended and required to use `speed` for this situation to take the place of `velocity` setting. This property will force the velocity to fit for walking to make the behavior more smooth and stable. 
+```diff
+! Please turn on `autobody` before using `speed`!
+```
 
 ## `move_and_slide()` in `EntityBody2D`
 The core of the class is **redefined** `move_and_slide()` method, though its name maintains, there is added a new extra parameters that each developer needs to know to have a better understanding of its workflow.
