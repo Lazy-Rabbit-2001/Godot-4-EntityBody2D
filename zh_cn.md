@@ -22,7 +22,9 @@
 * `max_falling_speed`确定该物体在下落方向上的最大速度，该值为0时则无此限制。单位为**像素每秒**
 
 如需对物体应用多向重力，请使用`Area2D`节点，并将其`gravity_space_override`调整为非"Disabled"的值，然后调整相关属性的数值即可。  
-![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+)**（警告：开启`autobody`的同时若关闭了`global_rotation_to_gravity_direction`，则会导致其他方向上的重力效果异常！**
+```diff
+-（警告：开启`autobody`的同时若关闭了`global_rotation_to_gravity_direction`，则会导致其他方向上的重力效果异常！
+```
 
 记住这些属性及其说明，对开发者使用本插件制作物体将会更加得心应手
 
