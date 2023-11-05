@@ -47,7 +47,9 @@ Let's have an example: If you have set `velocity` of a body to `Vector2(10, 0)` 
 In most situations, some objects, like players and enemies, will behave weirdly during the change of gravity field, especially when they are walking. If there is only velocity modified, they will walk unstably with incorrect velocity being set. To solve this problem, it is recommended and required to use `speed` for this situation to take the place of `velocity` setting. This property will force the velocity to fit for walking to make the behavior more smooth and stable. 
 ```diff
 ! Please turn on `autobody` before using `speed`!
+- The properties `autobody` and `speed` IS NOT compatible with `global_rotation_to_gravity_direction`, and please see the chapter of [Gravity]
 ```
+[Gravity](#Gravity)
 
 ## `move_and_slide()` in `EntityBody2D`
 The core of the class is **redefined** `move_and_slide()` method, though its name maintains, there is added a new extra parameters that each developer needs to know to have a better understanding of its workflow.
