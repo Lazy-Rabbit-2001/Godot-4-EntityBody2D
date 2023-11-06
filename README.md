@@ -26,7 +26,7 @@ Gravity is the significance for this extension. Hereby a property list will be s
 
 For gravity in other directions, please use an `Area2D` and adjust its `gravity_space_override` to a value rather than "Disabled", and then change the settings popping right after the mode gets changed.
 ```diff
-- (WARNING: If `autobody` mode is on while `global_rotation_to_gravity_direction` is off, the gravity in other direction will work abnormally!)**
+- (WARNING: If `autobody` mode is on while `global_rotation_to_gravity_direction` is off, the gravity in other direction will work abnormally!)
 ```
 
 Remembering these properties and their usage may help developers better understand how the gravity will affect a body.
@@ -47,14 +47,14 @@ Let's have an example: If you have set `velocity` of a body to `Vector2(10, 0)` 
 In most situations, some objects, like players and enemies, will behave weirdly during the change of gravity field, especially when they are walking. If there is only velocity modified, they will walk unstably with incorrect velocity being set. To solve this problem, it is recommended and required to use `speed` for this situation to take the place of `velocity` setting. This property will force the velocity to fit for walking to make the behavior more smooth and stable. 
 ```diff
 ! Please turn on `autobody` before using `speed`!
-- The properties `autobody` and `speed` IS NOT compatible with `global_rotation_to_gravity_direction`, and please see the chapter of [Gravity]
+- The properties `autobody` and `speed` IS NOT compatible with `global_rotation_to_gravity_direction` turned off, and please see the chapter of [Gravity]
 ```
 [Gravity](#Gravity)
 
 ## `move_and_slide()` in `EntityBody2D`
-The core of the class is **redefined** `move_and_slide()` method, though its name maintains, there is added a new extra parameters that each developer needs to know to have a better understanding of its workflow.
+The core of the class is **redefined** `move_and_slide()` method, though its name maintains, there is added a new extra parameter that each developer needs to know to have a better understanding of its workflow.
 
-**Note:** Values in "()" are default values of representative parameters
+**Note:** The value in "()" is default values of representative parameters
 * `bool use_real_velocity (false)` -- this will determine the final performance of the body's movement. In case of being `true`, the body will act more like it does in realler physics environment.
 
 ### `max_falling_speed` Working in the method
@@ -62,7 +62,7 @@ If the `max_falling_speed` is greater than 0, the falling speed will be limited 
 
 ## Other Methods
 ### Basic extra methods
-An `EntityBody2D` not only can run with new `move_and_slide()`, but also has ability to be performed by other functions offered:
+An `EntityBody2D` not only can run with new `move_and_slide()`, but also has ability to perform with other functions offered:
 
 * `accelerate_*()` -- with seven versions: `accelerate_speed()`, `accelerate_local_x()`, `accelerate_local_y()`, `accelerate_local()`, `accelerate_x()`, `accelerate_y()` and `accelerate()`, whose first params are `acceleration` in ***pixels/s²***, while the second ones are `to` in ***pixels/s***. They will move the `speed`/`velocity.x`/`velocity.y`/`velocity`/`global_velocity.x`/`global_velocity.y`/`global_velocity` to the value of param `to` and they won't make the final value out of limitation. So if you want to accelerate a body continuously without any limitation, please code：
 ```GDScript
