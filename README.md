@@ -1,5 +1,5 @@
 **English(Current)** | [中文版](zh_cn.md)
-# Godot 4 EntityBody2D (v2.0)
+# Godot 4 EntityBody2D (v2.1)
 A GDExtension for Godot 4 to provide an EntityBody2D for 2D platform games
 
 # How to Install?
@@ -31,12 +31,13 @@ For gravity in other directions, please use an `Area2D` and adjust its `gravity_
 
 Remembering these properties and their usage may help developers better understand how the gravity will affect a body.
 
-## Up Direction and Top Direction
-In `EntityBody2D`, `up_direction` is not an absolute up direction if a body is moving via `move_and_slide()`. In such situation, `up_direction` is one affected by the body's `global_rotation`, and you need to get access to `top_direction` to get an up direction without any rotation.  
+## Up Direction and Up Direction Angle
+In `EntityBody2D`, `up_direction` is not an absolute up direction if a body is moving via `move_and_slide()`. In such situation, `up_direction` is one the reverse of total gravity direction, which is set to make sure everything will work in expected way.
 
-E.g: If the `top_direction` is `Vector2(0, -1)` with `global_rotation` PI/4(45°), the `up_direction` will become `Vector2(0, -1).rotated(PI/4) => Vector2(√2/2, -√2/2)`
+Also, to make users able to do some modification on this property, `up_direction_angle` **(in degrees)** is introduced to rotate the `up_direction`. So the up direction in `move_and_slide()` will be:
 
-Before v1.6, there is a property `gravity_direction` that helps developers to decide to which direction the gravity effects the body. However, for more convenience, the property has been discarded and its functionality is now replaced with **`up_direction` in reverse** to be the gravity direction, which can be got via `get_gravity_direction()` method.
+>-gravity_direction.rotated(deg_to_rad(up_direction_angle))
+
 From v2.0, gravity direction is controlled by an `Area2D`, and please see [Gravity](#gravity).
 
 ## Velocity and Speed
@@ -47,7 +48,6 @@ Let's have an example: If you have set `velocity` of a body to `Vector2(10, 0)` 
 In most situations, some objects, like players and enemies, will behave weirdly during the change of gravity field, especially when they are walking. If there is only velocity modified, they will walk unstably with incorrect velocity being set. To solve this problem, it is recommended and required to use `speed` for this situation to take the place of `velocity` setting. This property will force the velocity to fit for walking to make the behavior more smooth and stable. 
 ```diff
 ! Please turn on `autobody` before using `speed`!
-- The properties `autobody` and `speed` IS NOT compatible with `global_rotation_to_gravity_direction` turned off, and please see the chapter of [Gravity]
 ```
 [Gravity](#Gravity)
 
