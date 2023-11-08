@@ -91,6 +91,9 @@ Thus, two methods `correct_on_wall_corner()` and `correct_onto_floor()` are impl
 ## Properties
 ### `max_falling_speed_ratio`
 This property is used to adjust the `max_falling_speed` of `EntityBody2D` entering the area, and if they leave from the area, their max falling speed will be restored to what it was
+In the area, the `max_falling_speed` of the body will be
+
+> max_falling_speed * (ratio if ratio > 0 else 1.0)
 
 # Known Issues
 * Due to the midium accuracy of GodotPhysics2D, when the angle of `up_direction` cannot be divided completely by PI/2, the body will, in great chance, behave unexpectedly. This issue has got repaired in a tricky way that has increased the performance cost, which could get optimizd when [Jolt by Mikael Hermansson](https://github.com/godot-jolt/godot-jolt) is installed and enabled.
