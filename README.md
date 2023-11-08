@@ -91,7 +91,7 @@ Thus, two methods `correct_on_wall_corner()` and `correct_onto_floor()` are impl
 ## Properties
 ### `max_falling_speed_ratio`
 This property is used to adjust the `max_falling_speed` of `EntityBody2D` entering the area, and if they leave from the area, their max falling speed will be restored to what it was
-In the area, the `max_falling_speed` of the body will be
+In the area, the `max_falling_speed` of the body will be  
 
 > max_falling_speed * (ratio if ratio > 0 else 1.0)
 
