@@ -1,6 +1,6 @@
 **English(Current)** | [中文版](zh_cn.md)
 # Godot 4 EntityBody2D (v2.1)
-A GDExtension for Godot 4 to provide an EntityBody2D for 2D platform games
+A GDExtension for Godot 4 to provide an `EntityBody2D` and an `EntityArea2D` for 2D platform games
 
 # How to Install?
 1. Clone the repo to any folders and copy the `gdextension` folder
@@ -84,6 +84,13 @@ global_velocity += acceleration * delta # acceleration is of Vector2 type
 ### Correction methods
 During the development, the developers may find their characters moving with some issues, especially when they are working on some games like Super Mario Bros., in which Mario can walk through one-tile gaps and they have no idea how to make a character walk over the gap when they are planning to make such a feature; or such a situation where he, visually, should be jumping by the side of a block, but due to the information difference led by his collision box, he acutally hits the block and starts to fall.  
 Thus, two methods `correct_on_wall_corner()` and `correct_onto_floor()` are implemented. The first method will solve the issue of the second situation mentioned above, making the body jump by the side of one block smoothly; while the second method deals with the problem of the body not being able to pass the one-tile gap.
+
+# About `EntityArea2D`
+`EntityArea2D` is newly added in version 2.1. Inheriting `Area2D`, it is used mainly to affect `EntityBody2D`'s physics effect.
+
+## Properties
+### `max_falling_speed_ratio`
+This property is used to adjust the `max_falling_speed` of `EntityBody2D` entering the area, and if they leave from the area, their max falling speed will be restored to what it was
 
 # Known Issues
 * Due to the midium accuracy of GodotPhysics2D, when the angle of `up_direction` cannot be divided completely by PI/2, the body will, in great chance, behave unexpectedly. This issue has got repaired in a tricky way that has increased the performance cost, which could get optimizd when [Jolt by Mikael Hermansson](https://github.com/godot-jolt/godot-jolt) is installed and enabled.
