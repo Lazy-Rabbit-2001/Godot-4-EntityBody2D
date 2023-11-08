@@ -1,6 +1,6 @@
 [English](README.md) | **中文版（当前页面）**
 # Godot 4 EntityBody2D (2.1版本)
-为2D平台游戏而开发的适用于Godot 4的 GDExtension，向引擎中自动附加`EntityBody2D`节点类
+为2D平台游戏而开发的适用于Godot 4的 GDExtension，向引擎中自动附加`EntityBody2D`和`EntityArea2D`这两个节点类
 
 # 安装
 1. 将本工程克隆到任意文件夹下，复制其中的`gdextension`文件夹
@@ -79,6 +79,17 @@ global_velocity += acceleration * delta # 加速度为 Vector2 类型
 
 ### 校正方法
 在开发过程中，开发者也会在开发可移动角色时遇到一些问题，尤其是对于制作类马里奥游戏的开发者来说更是如此。马里奥可以走过一格宽的空隙，但实际开发时却因为自己的角色无法通过这样的空隙对此头疼不已。而马里奥顶到东西时，由于使用了矩形判定箱，导致一部分视觉上会让马里奥在顶到方块侧边时会顺势滑过跳上去的情况，变成了马里奥被判定为顶头而下落，为此实装了两个方法：`correct_on_wall_corner()`和`correct_onto_floor()`。前者用来解决前面提到的“视觉欺骗”问题，而后者则用来让物体能够通过一格宽的缝隙。
+
+# 关于`EntityArea2D`
+`EntityArea2D`为2.1版本中新增的节点类，继承自`Area2D`，主要用来影响`EntityBody2D`类的实例的物理效果
+
+## 属性
+### `max_falling_speed_ratio`
+该属性用于修改在该区域内的`EntityBody2D`物体的`max_falling_speed`值，若该物体离开该区域，则该物体的最大下落速度会恢复至原数值
+在该区域内，物体的`max_falling_speed`为：
+
+> max_falling_speed * (ratio if ratio > 0 else 1.0)
+
 
 # 已知问题
 ## `velocity`的设置与获取
