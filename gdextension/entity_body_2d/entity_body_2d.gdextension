@@ -1,5 +1,6 @@
 [icons]
 
+EntityArea2D = "res://gdextension/entity_body_2d/entity_area_2d.svg"
 EntityBody2D = "res://gdextension/entity_body_2d/entity_body_2d.svg"
 
 

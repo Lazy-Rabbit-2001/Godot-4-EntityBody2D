@@ -7,8 +7,6 @@
 #include <godot_cpp/classes/physics_direct_body_state2d.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/classes/kinematic_collision2d.hpp>
-#include <godot_cpp/classes/script.hpp>
-#include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 using namespace gde_fast_syntax;
@@ -86,15 +84,19 @@ void EntityBody2D::_bind_methods()
         "EntityBody2D", PropertyInfo(Variant::BOOL, "global_rotation_to_gravity_direction"),
         "set_global_rotation_to_gravity_direction", "is_global_rotation_to_gravity_direction"
     );
-    ADD_GROUP("Top", "");
-    ClassDB::bind_method(D_METHOD("get_top_direction"), &EntityBody2D::get_top_direction);
-    ClassDB::bind_method(D_METHOD("set_top_direction", "p_top_direction"), &EntityBody2D::set_top_direction);
+    ADD_GROUP("Up Direction", "");
+    ClassDB::bind_method(D_METHOD("get_up_direction_angle"), &EntityBody2D::get_up_direction_angle);
+    ClassDB::bind_method(D_METHOD("set_up_direction_angle", "p_up_direction_angle"), &EntityBody2D::set_up_direction_angle);
     ClassDB::add_property(
-        "EntityBody2D", PropertyInfo(Variant::VECTOR2, "top_direction"),
-        "set_top_direction", "get_top_direction"
+        "EntityBody2D", PropertyInfo(Variant::FLOAT, "up_direction_angle", PROPERTY_HINT_RANGE, "-180, 180, 0.001, degrees"),
+        "set_up_direction_angle", "get_up_direction_angle"
     );
 
     // Register methods
+    ClassDB::bind_method(D_METHOD("add_entity_area_to_list", "entity_area"), &EntityBody2D::add_entity_area_to_list);
+    ClassDB::bind_method(D_METHOD("remove_entity_area_from_list", "entity_area"), &EntityBody2D::remove_entity_area_from_list);
+    ClassDB::bind_method(D_METHOD("clear_entity_areas_list"), &EntityBody2D::clear_entity_areas_list);
+    ClassDB::bind_method(D_METHOD("is_in_entity_areas_list", "entity_area"), &EntityBody2D::is_in_entity_areas_list);
     ClassDB::bind_method(D_METHOD("get_gravity_vector"), &EntityBody2D::get_gravity_vector);
     ClassDB::bind_method(D_METHOD("get_gravity_rotation_angle"), &EntityBody2D::get_gravity_rotation_angle);
     ClassDB::bind_method(D_METHOD("get_damp"), &EntityBody2D::get_damp);
@@ -131,7 +133,7 @@ EntityBody2D::EntityBody2D() {
     gravity = 0.0;
     max_falling_speed = 1500.0;
     global_rotation_to_gravity_direction = true;
-    top_direction = Vector2(0, -1);
+    up_direction_angle = 0.0;
 }
 
 EntityBody2D::~EntityBody2D() {}
@@ -166,7 +168,7 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
     if (global_rotation_to_gravity_direction && !UtilityFunctions::is_equal_approx(get_global_rotation(), gangl)) {
         set_global_rotation(UtilityFunctions::lerp_angle(get_global_rotation(), gangl, 22.5 * get_delta(this)));
     }
-    set_up_direction(top_direction.rotated(get_global_rotation()));
+    set_up_direction(-grdir.rotated(UtilityFunctions::deg_to_rad(up_direction_angle)));
 
     // Damp & speed
     double rot = get_up_direction().angle() + Math_PI/2.0;
@@ -190,11 +192,13 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
     }
 
     // Falling
+    calculate_final_max_falling_speed_ratio();
+    double mfs = _final_max_falling_speed_ratio > 0.0 ? max_falling_speed * _final_max_falling_speed_ratio : max_falling_speed;
     if (!is_on_floor()) {
         gv += gunit * gravity * get_delta(this);
         bool on_falling = gv.dot(grdir) > 0.0;
-        if (max_falling_speed > 0.0 && on_falling) {
-            gv = Transform2DAlgo::get_projection_limit(gv, grdir, max_falling_speed);
+        if (mfs > 0.0 && on_falling) {
+            gv = Transform2DAlgo::get_projection_limit(gv, grdir, mfs);
         }
     }
     else {
@@ -413,6 +417,44 @@ void EntityBody2D::correct_onto_floor(const int steps) {
 }
 
 
+void EntityBody2D::add_entity_area_to_list(EntityArea2D *entity_area) {
+    if (is_in_entity_areas_list(entity_area)) {
+        return;
+    }
+    _entity_areas.append(entity_area);
+}
+
+bool EntityBody2D::is_in_entity_areas_list(EntityArea2D *entity_area) {
+    return _entity_areas.has(entity_area);
+}
+
+void EntityBody2D::remove_entity_area_from_list(EntityArea2D *entity_area) {
+    if (!is_in_entity_areas_list(entity_area)) {
+        return;
+    }
+    _entity_areas.erase(entity_area);
+}
+
+TypedArray<Area2D> EntityBody2D::get_entity_areas_from_list() const {
+    return _entity_areas;
+}
+
+void EntityBody2D::clear_entity_areas_list()
+{
+    _entity_areas.clear();
+}
+
+
+void EntityBody2D::calculate_final_max_falling_speed_ratio() {
+    _final_max_falling_speed_ratio = 0.0;
+    int eas = _entity_areas.size();
+    for (int i = 0; i < eas; i++) {
+        _final_max_falling_speed_ratio += Object::cast_to<EntityArea2D>(_entity_areas[i])->get_max_falling_speed_ratio();
+    }
+    _final_max_falling_speed_ratio /= double(eas);
+}
+
+
 // Properties' Setters and Getters
 // Getters only
 Vector2 EntityBody2D::get_previous_velocity() const {
@@ -453,7 +495,7 @@ double EntityBody2D::get_damp() const {
 }
 
 TypedArray<Node2D> EntityBody2D::get_colliders() {
-    TypedArray<Node2D> objs = Array::make();
+    TypedArray<Node2D> objs = TypedArray<Node2D>::make();
 
     for(int i = 0; i < get_slide_collision_count(); i++) {
         Ref<KinematicCollision2D> &kc = get_slide_collision(i);
@@ -479,7 +521,6 @@ Node2D* EntityBody2D::get_last_collider() {
     }
     return Object::cast_to<Node2D>(kc->get_collider());
 }
-
 
 bool EntityBody2D::is_leaving_ground() const {
     return get_velocity().dot(get_gravity_vector().normalized()) < 0.0;
@@ -568,10 +609,10 @@ bool EntityBody2D::is_global_rotation_to_gravity_direction() const {
 }
 
 // Vector2 top_direction
-void EntityBody2D::set_top_direction(const Vector2 &p_top_direction) {
-    top_direction = p_top_direction.normalized();
+void EntityBody2D::set_up_direction_angle(const double p_up_direction_angle) {
+    up_direction_angle = p_up_direction_angle;
 }
 
-Vector2 EntityBody2D::get_top_direction() const {
-    return top_direction.normalized();
+double EntityBody2D::get_up_direction_angle() const {
+    return up_direction_angle;
 }

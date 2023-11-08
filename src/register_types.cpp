@@ -11,6 +11,7 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
 
+#include "entity_area_2d.h"
 #include "entity_body_2d.h"
 
 using namespace godot;
@@ -20,6 +21,7 @@ void initialize_entity_body_2d_module(ModuleInitializationLevel p_level) {
 		return;
 	}
 
+	ClassDB::register_class<EntityArea2D>();
 	ClassDB::register_class<EntityBody2D>();
 }
 
