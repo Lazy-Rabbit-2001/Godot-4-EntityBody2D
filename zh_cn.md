@@ -85,7 +85,7 @@ global_velocity += acceleration * delta # 加速度为 Vector2 类型
 
 ## 属性
 ### `max_falling_speed_ratio`
-该属性用于修改在该区域内的`EntityBody2D`物体的`max_falling_speed`值，若该物体离开该区域，则该物体的最大下落速度会恢复至原数值
+该属性用于修改在该区域内的`EntityBody2D`物体的`max_falling_speed`值，若该物体离开该区域，则该物体的最大下落速度会恢复至原数值  
 在该区域内，物体的`max_falling_speed`为：
 
 > max_falling_speed * (ratio if ratio > 0 else 1.0)
