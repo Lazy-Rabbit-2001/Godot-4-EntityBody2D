@@ -45,7 +45,6 @@
 
 大部分情况下，诸如玩家、敌人这类物体，其运动会在切换重力场的过程中发生问题，尤其是其行走运动。仅修改`velocity`属性会导致其行走不正常，`velocity`的结果出现异常。为解决这类问题，强烈建议设置`speed`属性来完成行走的属性设置，该属性通过强制设置行走速度来保证物体的行走行为平稳如履，`velocity`的结果无异常情况。
 ```diff
-+ Actually, `speed` forces one of the columns of global velocity direction the `up_direction` rotated by PI/2 rad (points towards the relative "right" of the body)
 + 实际上，`speed`属性的原理是强制全局速度的某个分量指向`up_direction`旋转PI/2弧度后所指向的方向（即相对于物体重力而言的“右方向”）
 ! 使用`speed`属性前需要先开启`autobody`属性！
 ```
