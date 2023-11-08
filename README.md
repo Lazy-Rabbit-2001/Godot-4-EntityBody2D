@@ -25,18 +25,19 @@ Gravity is the significance for this extension. Hereby a property list will be s
 * `max_falling_speed` -- defines how great the falling speed is, and if the value is set to 0, there will be no limitation on the falling speed. The unit is ***pixels/s***
 
 For gravity in other directions, please use an `Area2D` and adjust its `gravity_space_override` to a value rather than "Disabled", and then change the settings popping right after the mode gets changed.
-```diff
-- (WARNING: If `autobody` mode is on while `global_rotation_to_gravity_direction` is off, the gravity in other direction will work abnormally!)
-```
 
 Remembering these properties and their usage may help developers better understand how the gravity will affect a body.
 
 ## Up Direction and Up Direction Angle
-In `EntityBody2D`, `up_direction` is not an absolute up direction if a body is moving via `move_and_slide()`. In such situation, `up_direction` is one the reverse of total gravity direction, which is set to make sure everything will work in expected way.
+In `EntityBody2D`, `up_direction` is not an absolute up direction if a body is moving via `move_and_slide()`. In such situation, `up_direction` is **the reverse of *total gravity direction***, which is set to make sure everything will work in expected way.
 
-Also, to make users able to do some modification on this property, `up_direction_angle` **(in degrees)** is introduced to rotate the `up_direction`. So the up direction in `move_and_slide()` will be:
+Also, to make users able to do some modification on this property, `up_direction_angle` **(in degrees)** is introduced to rotate the `up_direction` during the procession of `move_and_slide()`. So the up direction in `move_and_slide()` will be:
 
->-gravity_direction.rotated(deg_to_rad(up_direction_angle))
+> -gravity_direction.rotated(deg_to_rad(up_direction_angle))
+
+```diff
+! Don't worry if the up direction will rotate based on one that rotated previously, after the call of the function, up direction will be rotated back to what it should be
+```
 
 From v2.0, gravity direction is controlled by an `Area2D`, and please see [Gravity](#gravity).
 
@@ -47,6 +48,7 @@ Let's have an example: If you have set `velocity` of a body to `Vector2(10, 0)` 
 
 In most situations, some objects, like players and enemies, will behave weirdly during the change of gravity field, especially when they are walking. If there is only velocity modified, they will walk unstably with incorrect velocity being set. To solve this problem, it is recommended and required to use `speed` for this situation to take the place of `velocity` setting. This property will force the velocity to fit for walking to make the behavior more smooth and stable. 
 ```diff
++ Actually, `speed` forces one of the columns of global velocity direction the `up_direction` rotated by PI/2 rad (points towards the relative "right" of the body's gravity)
 ! Please turn on `autobody` before using `speed`!
 ```
 [Gravity](#Gravity)
