@@ -1,5 +1,5 @@
 [English](README.md) | **中文版（当前页面）**
-# Godot 4 EntityBody2D (2.0版本)
+# Godot 4 EntityBody2D (2.1版本)
 为2D平台游戏而开发的适用于Godot 4的 GDExtension，向引擎中自动附加`EntityBody2D`节点类
 
 # 安装
@@ -22,16 +22,20 @@
 * `max_falling_speed`确定该物体在下落方向上的最大速度，该值为0时则无此限制。单位为**像素每秒**
 
 如需对物体应用多向重力，请使用`Area2D`节点，并将其`gravity_space_override`调整为非"Disabled"的值，然后调整相关属性的数值即可。  
-```diff
--（警告：开启`autobody`的同时若关闭了`global_rotation_to_gravity_direction`，则会导致其他方向上的重力效果异常！
-```
 
 记住这些属性及其说明，对开发者使用本插件制作物体将会更加得心应手
 
-## 上方向与头顶对向
-`EntityBody2D`中的`up_direction`在参与`move_and_slide()`方法的调用时，并非绝对意义上的上方向，在此情形下，此“上方向”为该物体在受到`global_rotation`影响下的上方向，如果需要不受`global_rotation`影响的“上方向”（即**头顶对向**），请访问`top_direction`属性。  
-举个例子：若`top_direction`为`Vector2(0, -1)`，`global_rotation`为PI/4(45°)，则该物体的上方向为`Vector2(0, -1).rotated(PI/4) => Vector2(√2/2, -√2/2)`  
-在1.6版本前，有一个专门设置重力方向的属性`gravity_direction`，但后来出于便捷性考虑，便弃用了该属性，取而代之的则是`up_direction`属性的反向量，可通过`get_gravity_direction()`方法快速获取。  
+## 上方向与上方向偏角
+`EntityBody2D`中的`up_direction`在参与`move_and_slide()`方法的调用时，并非绝对意义上的上方向，在此情形下，此“上方向”为该物体的***合重力方向*的反方向**，这样设计也是希望能让插件的一些行为能以合适的方式运作。
+
+同时，为了能让开发者能够调整该属性，特此引入了`up_direction_angle`属性 **（单位：°）**，该属性会让`up_direction`旋转一定的角度。因此，上方向在调用`move_and_slide()`时实际上会变成：
+
+> -gravity_direction.rotated(deg_to_rad(up_direction_angle))
+
+```diff
+! 开发者无需担心`up_direction`属性会累加旋转。在`move_and_slide()`函数执行完毕后，该属性就会转回原先的方向
+```
+
 从2.0版本起，重力方向由`Area2D`节点控制，见[重力系统](#重力系统)条目。  
 
 ## 速度与行走速度
@@ -41,8 +45,9 @@
 
 大部分情况下，诸如玩家、敌人这类物体，其运动会在切换重力场的过程中发生问题，尤其是其行走运动。仅修改`velocity`属性会导致其行走不正常，`velocity`的结果出现异常。为解决这类问题，强烈建议设置`speed`属性来完成行走的属性设置，该属性通过强制设置行走速度来保证物体的行走行为平稳如履，`velocity`的结果无异常情况。
 ```diff
++ Actually, `speed` forces one of the columns of global velocity direction the `up_direction` rotated by PI/2 rad (points towards the relative "right" of the body)
++ 实际上，`speed`属性的原理是强制全局速度的某个分量指向`up_direction`旋转PI/2弧度后所指向的方向（即相对于物体重力而言的“右方向”）
 ! 使用`speed`属性前需要先开启`autobody`属性！
-- `autobody`属性和`speed`属性与`global_rotation_to_gravity_direction`属性冲突，详见前文【重力系统】一节
 ```
 [重力系统](#重力系统)
 
