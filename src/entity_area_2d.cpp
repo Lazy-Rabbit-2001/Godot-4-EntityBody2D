@@ -1,9 +1,13 @@
 #include "entity_body_2d.h"
+#include "entity_area_2d.h"
 
+#include <godot_cpp/classes/engine.hpp>
 
 void EntityArea2D::_bind_methods()
 {
     // double max_falling_speed_ratio
+    ADD_GROUP("Gravity", "");
+    ADD_SUBGROUP("For Entity Body", "");
     ClassDB::bind_method(D_METHOD("get_max_falling_speed_ratio"), &EntityArea2D::get_max_falling_speed_ratio);
     ClassDB::bind_method(D_METHOD("set_max_falling_speed_ratio", "p_max_falling_speed_ratio"), &EntityArea2D::set_max_falling_speed_ratio);
     ClassDB::add_property(
@@ -11,6 +15,7 @@ void EntityArea2D::_bind_methods()
         "set_max_falling_speed_ratio", "get_max_falling_speed_ratio"
     );
 }
+
 
 EntityArea2D::EntityArea2D() {
     max_falling_speed_ratio = 1.0;
