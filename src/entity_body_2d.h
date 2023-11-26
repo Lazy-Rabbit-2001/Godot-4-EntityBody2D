@@ -4,27 +4,26 @@
 #include <godot_cpp/classes/area2d.hpp>
 #include <godot_cpp/classes/character_body2d.hpp>
 
-#include "entity_area_2d.h"
-
 using namespace godot;
 
-class EntityArea2D;
 class EntityBody2D : public CharacterBody2D {
     GDCLASS(EntityBody2D, CharacterBody2D)
 
 private:
     const double GRAVITY_DEFAULT = 980.0;
-    
+
     // Exported properties
     Vector2 velocity;
-    double damp_mode;
-    double damp_min_speed_ratio;
+    double max_velocity_x;
+    double max_velocity_x_scale;
+    double damp_enabled;
+    double damp_min_speed;
     bool autobody;
-    double speed;
 
     double gravity;
+    double gravity_x;
     double max_falling_speed;
-    Dictionary falling_speed_factors;
+    double max_falling_speed_x;
     bool global_rotation_to_gravity_direction;
 
     double up_direction_angle;
@@ -32,15 +31,10 @@ private:
     // Hiden properties
     Vector2 _velocity;
     Vector2 _velocity_global;
-    double _speed;
-    double _final_max_falling_speed_ratio;
+    double _max_velocity_x;
 
-    double _init_speed = 0.0;
-    double _init_velocity_global_axis_x = 0.0;
     double _damped_min_speed;
     double _damped_min_velocity_global_axis_x;
-
-    TypedArray<Area2D> _entity_areas;
 
 protected:
     static void _bind_methods();
@@ -55,7 +49,7 @@ public:
 
     // Methods
     bool move_and_slide(const bool use_real_velocity = false);
-    void accelerate_speed(const double acceleration, const double to);
+    void accelerate_autobody_velocity_x(const double acceleration, const int direction_override = 0);
     void accelerate_local_x(const double acceleration, const double to);
     void accelerate_local_y(const double acceleration, const double to);
     void accelerate_local(const double acceleration, const Vector2 &to);
@@ -68,14 +62,6 @@ public:
     void jump(const double jumping_speed, const bool is_accumulating_mode = false);
     void correct_on_wall_corner(const int steps = 4);
     void correct_onto_floor(const int steps = 20);
-
-    void add_entity_area_to_list(EntityArea2D *entity_area);
-    void remove_entity_area_from_list(EntityArea2D *entity_area);
-    bool is_in_entity_areas_list(EntityArea2D *entity_area);
-    TypedArray<Area2D> get_entity_areas_from_list() const;
-    void clear_entity_areas_list();
-
-    void calculate_final_max_falling_speed_ratio();
 
     // Properties Setters and Getters
     Vector2 get_previous_velocity() const;
@@ -93,26 +79,35 @@ public:
     void set_velocity(const Vector2 &p_velocity);
     Vector2 get_velocity() const;
 
+    void set_max_velocity_x(const double p_max_velocity_x);
+    double get_max_velocity_x() const;
+
+    void set_max_velocity_x_scale(const double p_max_velocity_x_scale);
+    double get_max_velocity_x_scale() const;
+
     void set_global_velocity(const Vector2 &p_global_velocity);
     Vector2 get_global_velocity() const;
 
-    void set_damp_mode(const bool p_damp_mode);
-    bool is_damp_mode() const;
+    void set_damp_enabled(const bool p_damp_enabled);
+    bool is_damp_enabled() const;
 
-    void set_damp_min_speed_ratio(const double p_damp_min_speed_ratio);
-    double get_damp_min_speed_ratio() const;
+    void set_damp_min_speed(const double p_damp_min_speed);
+    double get_damp_min_speed() const;
 
     void set_autobody(const bool p_autobody);
     bool is_autobody() const;
 
-    void set_speed(const double p_speed);
-    double get_speed() const;
-
     void set_gravity(const double p_gravity);
     double get_gravity() const;
 
+    void set_gravity_x(const double p_gravity_x);
+    double get_gravity_x() const;
+
     void set_max_falling_speed(const double p_max_falling_speed);
     double get_max_falling_speed() const;
+
+    void set_max_falling_speed_x(const double p_max_falling_speed_x);
+    double get_max_falling_speed_x() const;
 
     void set_global_rotation_to_gravity_direction(const bool p_global_rotation_to_gravity_direction);
     bool is_global_rotation_to_gravity_direction() const;
