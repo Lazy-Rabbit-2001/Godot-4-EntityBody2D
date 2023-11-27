@@ -22,7 +22,7 @@
 ## 重力系统
 重力系统是本插件的重中之重。下列属性均与该类的重力系统相关：
 
-* `gravity`实际上为**重力加速度**，单位为***像素每二次方秒***，该值越大，则物体下落速度会变化得越快。
+* `gravity_scale`为该物体受重力加速度的影响倍率，，该值越大，则物体下落速度变化得越快。
 * `max_falling_speed`确定该物体在下落方向上的最大速度，该值为0时则无此限制。单位为**像素每秒**。
 * `max_falling_speed_scale`影响`max_falling_speed`的作用倍率。
 
@@ -49,16 +49,16 @@
 同样举个例子：若`velocity`为`Vector2(10, 0)`，上方向全局角`up_direction.angle()`为PI/4(45°)，则实际速度为`Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)` 。
 
 大部分情况下，诸如玩家、敌人这类物体，其运动会在切换重力场的过程中发生问题，尤其是其行走运动，仅修改`velocity`属性会导致其行走不正常。为解决该问题，强烈建议开启`autobody`属性来完成行走的属性设置，该属性通过强制设置行走速度来保证物体的行走行为平稳如履。同时，本插件还增加了`max_speed`属性，允许开发者限制该物体的`velocity`.x的值，在制作角色加速效果时极其有用。当然，同`max_falling_speed_scale`一样，本插件也为`max_speed`引入了`max_speed_scale`来设置`max_speed`的生效倍率。  
-Sometimes, a body will walk slow in the water and regularly when leaves from it, but the `velocity`.x is cut down and should call some method to accelerate it to the maximum. To make this physics easier to work, developers can turn on `speed_is_max_speed` mode, which will lock the `velocity`.x to maximum of the speed and they just modify the `max_speed` to set initial and real-time `velocity.x`.  有时候，物体本应在进入水中的时候会走得很慢，出水之后其走路速度又会恢复原状，但`velocity`.x在进入水中之后就已经被削减过了，出了水还要把速度加速回原状，就比较麻烦。为了简化这种效果的实现，引入了`speed_is_max_speed`这一属性，开发者将其打开后，`velocity`.x就会自动设为`max_speed`，开发者此时只需要设置`max_speed`就可以顺带设置该物体`velocity`.x的初始值和实时值了
+有时候，物体本应在进入水中的时候会走得很慢，出水之后其走路速度又会恢复原状，但`velocity`.x在进入水中之后就已经被削减过了，出了水还要把速度加速回原状，就比较麻烦。为了简化这种效果的实现，引入了`speed_is_max_speed`这一属性，开发者将其打开后，`velocity`.x就会自动设为`max_speed`，开发者此时只需要设置`max_speed`就可以顺带设置该物体`velocity`.x的初始值和实时值了
 ```diff
 ! 使用`max_speed`与`speed_is_max_speed`这两个属性前需先开启`autobody`属性！
 ! 只有当`max_speed` * `max_speed_scale` 大于0时才能限制物体的velocity.x！
 ```
 
 ## `EntityBody2D`中重定义的`move_and_slide()`方法
-该节点类的另一个核心点便是**重定义后**的`move_and_slide()`方法，虽然方法名字与父类相同，但多了两个参数，开发者了解这些参数后能够对自己的游戏开发有所帮助。
+该节点类的另一个核心点便是**重定义后**的`move_and_slide()`方法，虽然方法名字与父类相同，但多了一个参数，开发者了解该参数后将能对自己的游戏开发有所帮助。
 
-**注：** 括号内的数值为对应参数的对应默认值
+**注：** 括号内的数值为对应参数的默认值
 * `bool use_real_velocity (false)`决定该物体最终的运动效果，若为`true`，则该物体将会以更加真实的物理效果进行运动
 
 ### `max_falling_speed`在该方法中的运作机理
@@ -80,11 +80,10 @@ global_velocity.y += acceleration * delta # 加速度为 float 类型
 global_velocity += acceleration * delta # 加速度为 Vector2 类型
 ```
 * `jump()`方法会让该物体`up_direction`进行跳跃，跳跃速度的单位为***pixels/s***，还有一个布尔值参数，若为`true`，则该物体不会先截断下落速度然后赋予跳跃速度，而是直接累加到当前速度上，适合用于增强跳跃高度。
-* `use_friction()`方法利用`lerp()`方法来让该物体**在地面上运动时**产生摩擦效果
+* `use_friction()`方法利用`lerp()`方法来让该物体**在地面上运动时**产生摩擦效果。
 
 ### 校正方法
-在开发过程中，开发者也会在开发可移动角色时遇到一些问题，尤其是对于制作类马里奥游戏的开发者来说更是如此。马里奥可以走过一格宽的空隙，但实际开发时却因为自己的角色无法通过这样的空隙对此头疼不已。而马里奥顶到东西时，由于使用了矩形判定箱，导致一部分视觉上会让马里奥在顶到方块侧边时会顺势滑过跳上去的情况，变成了马里奥被判定为顶头而下落，为此实装了两个方法：`correct_on_wall_corner()`和`correct_onto_floor()`。前者用来解决前面提到的“视觉欺骗”问题，而后者则用来让物体能够通过一格宽的缝隙。
-
+在开发过程中，开发者也会在开发可移动角色时遇到一些问题，尤其是对于制作类马里奥游戏的开发者来说更是如此。马里奥可以走过一格宽的空隙，但实际开发时却因为自己的角色无法通过这样的空隙对此头疼不已。而马里奥顶到东西时，由于使用了矩形判定箱，导致一部分视觉上会让马里奥在顶到方块侧边时会顺势滑过跳上去的情况，变成了马里奥被判定为顶头而下落，为此实装了两个方法：`correct_on_wall_corner()`和`correct_onto_floor()`。前者用来解决前面提到的“视觉欺骗”问题，而后者则用来让物体能够通过一格宽的缝隙。  
 
 # 已知问题
 ## `velocity`的设置与获取
