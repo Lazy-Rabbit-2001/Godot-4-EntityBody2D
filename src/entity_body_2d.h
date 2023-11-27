@@ -10,20 +10,18 @@ class EntityBody2D : public CharacterBody2D {
     GDCLASS(EntityBody2D, CharacterBody2D)
 
 private:
-    const double GRAVITY_DEFAULT = 980.0;
-
     // Exported properties
     Vector2 velocity;
-    double max_velocity_x;
-    double max_velocity_x_scale;
+    bool autobody;
+    double max_speed;
+    double max_speed_scale;
+    bool speed_is_max_speed;
     double damp_enabled;
     double damp_min_speed;
-    bool autobody;
 
-    double gravity;
-    double gravity_x;
+    double gravity_scale;
     double max_falling_speed;
-    double max_falling_speed_x;
+    double max_falling_speed_scale;
     bool global_rotation_to_gravity_direction;
 
     double up_direction_angle;
@@ -35,6 +33,9 @@ private:
 
     double _damped_min_speed;
     double _damped_min_velocity_global_axis_x;
+
+    // Private methods
+    Vector2 _get_gravity() const;
 
 protected:
     static void _bind_methods();
@@ -49,7 +50,7 @@ public:
 
     // Methods
     bool move_and_slide(const bool use_real_velocity = false);
-    void accelerate_autobody_velocity_x(const double acceleration, const int direction_override = 0);
+    void accelerate_to_max_speed(const double acceleration, const int direction_override = 0);
     void accelerate_local_x(const double acceleration, const double to);
     void accelerate_local_y(const double acceleration, const double to);
     void accelerate_local(const double acceleration, const Vector2 &to);
@@ -79,11 +80,14 @@ public:
     void set_velocity(const Vector2 &p_velocity);
     Vector2 get_velocity() const;
 
-    void set_max_velocity_x(const double p_max_velocity_x);
-    double get_max_velocity_x() const;
+    void set_max_speed(const double p_max_speed);
+    double get_max_speed() const;
 
-    void set_max_velocity_x_scale(const double p_max_velocity_x_scale);
-    double get_max_velocity_x_scale() const;
+    void set_max_speed_scale(const double p_max_speed_scale);
+    double get_max_speed_scale() const;
+
+    void set_speed_is_max_speed(const bool p_speed_is_max_speed);
+    bool is_speed_set_to_max_speed() const;
 
     void set_global_velocity(const Vector2 &p_global_velocity);
     Vector2 get_global_velocity() const;
@@ -97,17 +101,14 @@ public:
     void set_autobody(const bool p_autobody);
     bool is_autobody() const;
 
-    void set_gravity(const double p_gravity);
-    double get_gravity() const;
-
-    void set_gravity_x(const double p_gravity_x);
-    double get_gravity_x() const;
+    void set_gravity_scale(const double p_gravity_scale);
+    double get_gravity_scale() const;
 
     void set_max_falling_speed(const double p_max_falling_speed);
     double get_max_falling_speed() const;
 
-    void set_max_falling_speed_x(const double p_max_falling_speed_x);
-    double get_max_falling_speed_x() const;
+    void set_max_falling_speed_scale(const double p_max_falling_speed_scale);
+    double get_max_falling_speed_scale() const;
 
     void set_global_rotation_to_gravity_direction(const bool p_global_rotation_to_gravity_direction);
     bool is_global_rotation_to_gravity_direction() const;

@@ -3,6 +3,7 @@
 #include "mathorm.h"
 #include "fast_syntax.hpp"
 
+#include <godot_cpp/classes/project_settings.hpp>
 #include <godot_cpp/classes/physics_server2d.hpp>
 #include <godot_cpp/classes/physics_direct_body_state2d.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
@@ -35,17 +36,23 @@ void EntityBody2D::_bind_methods()
         "EntityBody2D", PropertyInfo(Variant::BOOL, "autobody"),
         "set_autobody", "is_autobody"
     );
-    ClassDB::bind_method(D_METHOD("get_max_velocity_x"), &EntityBody2D::get_max_velocity_x);
-    ClassDB::bind_method(D_METHOD("set_max_velocity_x", "p_max_velocity_x"), &EntityBody2D::set_max_velocity_x);
+    ClassDB::bind_method(D_METHOD("get_max_speed"), &EntityBody2D::get_max_speed);
+    ClassDB::bind_method(D_METHOD("set_max_speed", "p_max_speed"), &EntityBody2D::set_max_speed);
     ClassDB::add_property(
-        "EntityBody2D", PropertyInfo(Variant::FLOAT, "max_velocity_x", PROPERTY_HINT_RANGE, "0, 1, 0.001, or_greater, hide_slider, suffix:px/s"),
-        "set_max_velocity_x", "get_max_velocity_x"
+        "EntityBody2D", PropertyInfo(Variant::FLOAT, "max_speed", PROPERTY_HINT_RANGE, "0, 1, 0.001, or_greater, hide_slider, suffix:px/s"),
+        "set_max_speed", "get_max_speed"
     );
-    ClassDB::bind_method(D_METHOD("get_max_velocity_x_scale"), &EntityBody2D::get_max_velocity_x_scale);
-    ClassDB::bind_method(D_METHOD("set_max_velocity_x_scale", "p_max_velocity_x_scale"), &EntityBody2D::set_max_velocity_x_scale);
+    ClassDB::bind_method(D_METHOD("get_max_speed_scale"), &EntityBody2D::get_max_speed_scale);
+    ClassDB::bind_method(D_METHOD("set_max_speed_scale", "p_max_speed_scale"), &EntityBody2D::set_max_speed_scale);
     ClassDB::add_property(
-        "EntityBody2D", PropertyInfo(Variant::FLOAT, "max_velocity_x_scale", PROPERTY_HINT_RANGE, "0, 1, 0.001, or_greater, hide_slider, suffix:x", PROPERTY_USAGE_NO_EDITOR),
-        "set_max_velocity_x_scale", "get_max_velocity_x_scale"
+        "EntityBody2D", PropertyInfo(Variant::FLOAT, "max_speed_scale", PROPERTY_HINT_RANGE, "0, 1, 0.001, or_greater, hide_slider, suffix:x", PROPERTY_USAGE_NO_EDITOR),
+        "set_max_speed_scale", "get_max_speed_scale"
+    );
+    ClassDB::bind_method(D_METHOD("is_speed_set_to_max_speed"), &EntityBody2D::is_speed_set_to_max_speed);
+    ClassDB::bind_method(D_METHOD("set_speed_is_max_speed", "p_speed_is_max_speed"), &EntityBody2D::set_speed_is_max_speed);
+    ClassDB::add_property(
+        "EntityBody2D", PropertyInfo(Variant::BOOL, "speed_is_max_speed"),
+        "set_speed_is_max_speed", "is_speed_set_to_max_speed"
     );
     // Vector2 velocity (in parent class)
     ClassDB::bind_method(D_METHOD("get_global_velocity"), &EntityBody2D::get_global_velocity);
@@ -71,17 +78,11 @@ void EntityBody2D::_bind_methods()
     );
     ADD_GROUP("Gravity", "");
     // double gravity
-    ClassDB::bind_method(D_METHOD("get_gravity"), &EntityBody2D::get_gravity);
-    ClassDB::bind_method(D_METHOD("set_gravity", "p_gravity"), &EntityBody2D::set_gravity);
+    ClassDB::bind_method(D_METHOD("get_gravity_scale"), &EntityBody2D::get_gravity_scale);
+    ClassDB::bind_method(D_METHOD("set_gravity_scale", "p_gravity_scale"), &EntityBody2D::set_gravity_scale);
     ClassDB::add_property(
-        "EntityBody2D", PropertyInfo(Variant::FLOAT, "gravity", PROPERTY_HINT_RANGE, "-1, 1, 0.001, or_less, or_greater, hide_slider, suffix:px/s^2"),
-        "set_gravity", "get_gravity"
-    );
-    ClassDB::bind_method(D_METHOD("get_gravity_x"), &EntityBody2D::get_gravity_x);
-    ClassDB::bind_method(D_METHOD("set_gravity_x", "p_gravity_x"), &EntityBody2D::set_gravity_x);
-    ClassDB::add_property(
-        "EntityBody2D", PropertyInfo(Variant::FLOAT, "gravity_x", PROPERTY_HINT_RANGE, "0, 1, 0.001, or_greater, hide_slider, suffix:x", PROPERTY_USAGE_NO_EDITOR),
-        "set_gravity_x", "get_gravity_x"
+        "EntityBody2D", PropertyInfo(Variant::FLOAT, "gravity_scale", PROPERTY_HINT_RANGE, "-1, 1, 0.001, or_less, or_greater, hide_slider, suffix:x"),
+        "set_gravity_scale", "get_gravity_scale"
     );
     // double max_falling_speed
     ClassDB::bind_method(D_METHOD("get_max_falling_speed"), &EntityBody2D::get_max_falling_speed);
@@ -90,11 +91,11 @@ void EntityBody2D::_bind_methods()
         "EntityBody2D", PropertyInfo(Variant::FLOAT, "max_falling_speed", PROPERTY_HINT_RANGE, "0, 1, 0.001, or_greater, hide_slider, suffix:px/s"),
         "set_max_falling_speed", "get_max_falling_speed"
     );
-    ClassDB::bind_method(D_METHOD("get_max_falling_speed_x"), &EntityBody2D::get_max_falling_speed_x);
-    ClassDB::bind_method(D_METHOD("set_max_falling_speed_x", "p_max_falling_speed_x"), &EntityBody2D::set_max_falling_speed_x);
+    ClassDB::bind_method(D_METHOD("get_max_falling_speed_scale"), &EntityBody2D::get_max_falling_speed_scale);
+    ClassDB::bind_method(D_METHOD("set_max_falling_speed_scale", "p_max_falling_speed_scale"), &EntityBody2D::set_max_falling_speed_scale);
     ClassDB::add_property(
-        "EntityBody2D", PropertyInfo(Variant::FLOAT, "max_falling_speed_x", PROPERTY_HINT_RANGE, "0, 1, 0.001, or_greater, hide_slider, suffix:x", PROPERTY_USAGE_NO_EDITOR),
-        "set_max_falling_speed_x", "get_max_falling_speed_x"
+        "EntityBody2D", PropertyInfo(Variant::FLOAT, "max_falling_speed_scale", PROPERTY_HINT_RANGE, "0, 1, 0.001, or_greater, hide_slider, suffix:x", PROPERTY_USAGE_NO_EDITOR),
+        "set_max_falling_speed_scale", "get_max_falling_speed_scale"
     );
     // bool global_rotation_to_gravity_direction
     ClassDB::bind_method(D_METHOD("is_global_rotation_to_gravity_direction"), &EntityBody2D::is_global_rotation_to_gravity_direction);
@@ -122,7 +123,7 @@ void EntityBody2D::_bind_methods()
     ClassDB::bind_method(D_METHOD("is_leaving_ground"), &EntityBody2D::is_leaving_ground);
     ClassDB::bind_method(D_METHOD("is_falling"), &EntityBody2D::is_falling);
     ClassDB::bind_method(D_METHOD("move_and_slide", "use_real_velocity"), &EntityBody2D::move_and_slide, false);
-    ClassDB::bind_method(D_METHOD("accelerate_autobody_velocity_x", "acceleration", "direction_override"), &EntityBody2D::accelerate_autobody_velocity_x, 0);
+    ClassDB::bind_method(D_METHOD("accelerate_to_max_speed", "acceleration", "direction_override"), &EntityBody2D::accelerate_to_max_speed, 0);
     ClassDB::bind_method(D_METHOD("accelerate_local_x", "acceleration", "to"), &EntityBody2D::accelerate_local_x);
     ClassDB::bind_method(D_METHOD("accelerate_local_y", "acceleration", "to"), &EntityBody2D::accelerate_local_y);
     ClassDB::bind_method(D_METHOD("accelerate_local", "acceleration", "to"), &EntityBody2D::accelerate_local);
@@ -142,14 +143,14 @@ EntityBody2D::EntityBody2D() {
     // Properties' intialization
     autobody = true;
     velocity = Vector2(0, 0);
-    max_velocity_x = 0.0;
-    max_velocity_x_scale = 1.0;
+    max_speed = 0.0;
+    max_speed_scale = 1.0;
+    speed_is_max_speed = false;
     damp_enabled = false;
     damp_min_speed = 0.0;
-    gravity = 0.0;
-    gravity_x = 1.0;
+    gravity_scale = 1.0;
     max_falling_speed = 1500.0;
-    max_falling_speed_x = 1.0;
+    max_falling_speed_scale = 1.0;
     global_rotation_to_gravity_direction = true;
     up_direction_angle = 0.0;
 }
@@ -164,6 +165,13 @@ void EntityBody2D::_enter_tree() {
 }
 
 
+// Private methods
+Vector2 EntityBody2D::_get_gravity() const {
+    ProjectSettings *prjs = ProjectSettings::get_singleton();
+    return double(prjs->get_setting("physics/2d/default_gravity", 980.0)) * Vector2(prjs->get_setting("physics/2d/default_gravity_vector", Vector2(0.0, 1.0)));
+}
+
+
 // Methods
 bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
     bool ret = false;
@@ -175,48 +183,55 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
     // Velocity
     Vector2 gv = _velocity_global;
     Vector2 grvec = get_gravity_vector();
-    Vector2 grdir = grvec.normalized();
+    Vector2 grdir = grvec != Vector2() ? grvec.normalized() : Vector2();
     
     // Rotation
     double gangl = get_gravity_rotation_angle();
     if (global_rotation_to_gravity_direction && !UtilityFunctions::is_equal_approx(get_global_rotation(), gangl)) {
         set_global_rotation(UtilityFunctions::lerp_angle(get_global_rotation(), gangl, 22.5 * get_delta(this)));
     }
-    set_up_direction(-grdir.rotated(UtilityFunctions::deg_to_rad(up_direction_angle)));
+    set_up_direction(grdir != Vector2() ? -grdir.rotated(UtilityFunctions::deg_to_rad(up_direction_angle)) : get_up_direction());
 
     // Speed (Autobody only)
     double rot = get_up_direction().angle() + Math_PI/2.0;
     if (autobody) {
-        set_global_velocity(gv); // Update the velocity
-        if (max_velocity_x > 0.0) {
-            double mvx = UtilityFunctions::signf(velocity.x) * max_velocity_x * max_velocity_x_scale;
-            if (abs(velocity.x) > abs(mvx)) {
-                velocity.x = UtilityFunctions::move_toward(velocity.x, mvx, abs(velocity.x) * 0.1);
-                set_velocity(velocity);
-                gv = get_global_velocity(); // Update the global velocity
+        if (max_speed * max_speed_scale > 0.0 && velocity.x != 0.0) { // Speed limitation enabled if max speed is greater than 0.0
+            double mvx = UtilityFunctions::signf(velocity.x) * max_speed * max_speed_scale;
+            if (speed_is_max_speed) { // Autobody mode: speed assgined to max speed
+                velocity.x = mvx;
+            }
+            else { 
+                 // If oversped, decelerate to the max speed
+                 if (abs(velocity.x) > abs(mvx)) {
+                    velocity.x = UtilityFunctions::move_toward(velocity.x, mvx, abs(velocity.x) * 0.1);
+            }
+            set_velocity(velocity);
+            gv = get_global_velocity(); // Update the global velocity
             }
         }
     }
     // Damp (Rigidmode only)
-    else {
-        Vector2 gvly = gv.project(grdir);
-        Vector2 gvlx = gv - gvly;
-        gvlx = gvlx.move_toward(gvlx.normalized() * damp_min_speed, damp_enabled ? get_damp() : 0.0);
-        gv = gvlx + gvly;
+    else if (damp_enabled) {
+        double damp = get_damp();
+        if (damp > 0.0) {
+            Vector2 gvly = gv.project(grdir);
+            Vector2 gvlx = gv - gvly;
+            gvlx = gvlx.move_toward(gvlx.normalized() * damp_min_speed, damp);
+            gv = gvlx + gvly;
+        }
     }
 
     // Falling
     if (!is_on_floor()) {
-        double g = gravity * gravity_x;
-        double mfs = max_falling_speed * max_falling_speed_x;
-        gv += grdir * g * get_delta(this);
+        double mfs = max_falling_speed * max_falling_speed_scale;
+        gv += grvec * gravity_scale * get_delta(this);
         bool on_falling = gv.dot(grdir) > 0.0;
         if (mfs > 0.0 && on_falling) {
             gv = Transform2DAlgo::get_projection_limit(gv, grdir, mfs);
         }
     }
     else {
-        gv += grdir;
+        gv += grdir; // To ensure the body will correctly on the floor, and this will cause signal collided_on_floor emitted continuously on the floor
     }
 
     // Set global velocity
@@ -231,10 +246,10 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
         }
     }
     gv = get_global_velocity();
+    set_global_velocity(gv); // Update the velocity in the final frame
 
     // Signals emission;
     if (is_on_wall()) {
-        velocity.x = 0.0;
         emit_signal("collided_wall");
     }
     if (is_on_ceiling()) {
@@ -255,11 +270,11 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
     return ret;
 }
 
-void EntityBody2D::accelerate_autobody_velocity_x(const double acceleration, const int direction_override) {
+void EntityBody2D::accelerate_to_max_speed(const double acceleration, const int direction_override) {
     if (!autobody) {
         return;
     }
-    accelerate_local_x(acceleration, max_velocity_x * max_velocity_x_scale * (direction_override == 0 ? UtilityFunctions::signf(velocity.x) : direction_override));
+    accelerate_local_x(acceleration, max_speed * max_speed_scale * (direction_override == 0 ? UtilityFunctions::signf(velocity.x) : direction_override));
 }
 
 void EntityBody2D::accelerate_local_x(const double acceleration, const double to) {
@@ -450,11 +465,11 @@ Vector2 EntityBody2D::get_gravity_vector() const {
     PhysicsDirectBodyState2D *pdbs = PhysicsServer2D::get_singleton()->body_get_direct_state(get_rid());
     
     if (pdbs == nullptr) {
-        return Vector2(0, GRAVITY_DEFAULT);
+        return _get_gravity();
     }
 
     Vector2 gv = pdbs->get_total_gravity();
-    return gv != Vector2() ? gv : Vector2(0, GRAVITY_DEFAULT);
+    return gv;
 }
 
 double EntityBody2D::get_gravity_rotation_angle() const {
@@ -517,20 +532,28 @@ Vector2 EntityBody2D::get_velocity() const {
     return velocity;
 }
 
-void EntityBody2D::set_max_velocity_x(const double p_max_velocity_x) {
-    max_velocity_x = p_max_velocity_x;
+void EntityBody2D::set_max_speed(const double p_max_speed) {
+    max_speed = p_max_speed;
 }
 
-double EntityBody2D::get_max_velocity_x() const {
-    return max_velocity_x;
+double EntityBody2D::get_max_speed() const {
+    return max_speed;
 }
 
-void EntityBody2D::set_max_velocity_x_scale(const double p_max_velocity_x_scale) {
-    max_velocity_x_scale = p_max_velocity_x_scale;
+void EntityBody2D::set_max_speed_scale(const double p_max_speed_scale) {
+    max_speed_scale = p_max_speed_scale;
 }
 
-double EntityBody2D::get_max_velocity_x_scale() const {
-    return max_velocity_x_scale;
+double EntityBody2D::get_max_speed_scale() const {
+    return max_speed_scale;
+}
+
+void EntityBody2D::set_speed_is_max_speed(const bool p_speed_is_max_speed) {
+    speed_is_max_speed = p_speed_is_max_speed;
+}
+
+bool EntityBody2D::is_speed_set_to_max_speed() const {
+    return speed_is_max_speed;
 }
 
 // Vector2 velocity (in parent class)
@@ -568,20 +591,12 @@ bool EntityBody2D::is_autobody() const {
 }
 
 // double gravity
-void EntityBody2D::set_gravity(const double p_gravity) {
-    gravity = p_gravity;
+void EntityBody2D::set_gravity_scale(const double p_gravity_scale) {
+    gravity_scale = p_gravity_scale;
 }
 
-double EntityBody2D::get_gravity() const {
-    return gravity;
-}
-
-void EntityBody2D::set_gravity_x(const double p_gravity_x) {
-    gravity_x = p_gravity_x;
-}
-
-double EntityBody2D::get_gravity_x() const {
-    return gravity_x;
+double EntityBody2D::get_gravity_scale() const {
+    return gravity_scale;
 }
 
 // double max_falling_speed
@@ -593,12 +608,12 @@ double EntityBody2D::get_max_falling_speed() const {
     return max_falling_speed;
 }
 
-void EntityBody2D::set_max_falling_speed_x(const double p_max_falling_speed_x) {
-    max_falling_speed_x = p_max_falling_speed_x;
+void EntityBody2D::set_max_falling_speed_scale(const double p_max_falling_speed_scale) {
+    max_falling_speed_scale = p_max_falling_speed_scale;
 }
 
-double EntityBody2D::get_max_falling_speed_x() const {
-    return max_falling_speed_x;
+double EntityBody2D::get_max_falling_speed_scale() const {
+    return max_falling_speed_scale;
 }
 
 void EntityBody2D::set_global_rotation_to_gravity_direction(const bool p_global_rotation_to_gravity_direction) {
