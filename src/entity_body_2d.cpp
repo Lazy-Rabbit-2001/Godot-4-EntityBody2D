@@ -7,6 +7,10 @@
 #include <godot_cpp/classes/physics_server2d.hpp>
 #include <godot_cpp/classes/physics_direct_body_state2d.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
+#include <godot_cpp/classes/physics_material.hpp>
+#include <godot_cpp/classes/tile_map.hpp>
+#include <godot_cpp/classes/tile_set.hpp>
+#include <godot_cpp/classes/static_body2d.hpp>
 #include <godot_cpp/classes/kinematic_collision2d.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -123,19 +127,20 @@ void EntityBody2D::_bind_methods()
     ClassDB::bind_method(D_METHOD("is_leaving_ground"), &EntityBody2D::is_leaving_ground);
     ClassDB::bind_method(D_METHOD("is_falling"), &EntityBody2D::is_falling);
     ClassDB::bind_method(D_METHOD("move_and_slide", "use_real_velocity"), &EntityBody2D::move_and_slide, false);
-    ClassDB::bind_method(D_METHOD("accelerate_to_max_speed", "acceleration", "direction_override"), &EntityBody2D::accelerate_to_max_speed, 0);
+    ClassDB::bind_method(D_METHOD("accelerate_to_max_speed", "acceleration", "direction"), &EntityBody2D::accelerate_to_max_speed, 1);
     ClassDB::bind_method(D_METHOD("accelerate_local_x", "acceleration", "to"), &EntityBody2D::accelerate_local_x);
     ClassDB::bind_method(D_METHOD("accelerate_local_y", "acceleration", "to"), &EntityBody2D::accelerate_local_y);
     ClassDB::bind_method(D_METHOD("accelerate_local", "acceleration", "to"), &EntityBody2D::accelerate_local);
     ClassDB::bind_method(D_METHOD("accelerate_x", "acceleration", "to"), &EntityBody2D::accelerate_x);
     ClassDB::bind_method(D_METHOD("accelerate_y", "acceleration", "to"), &EntityBody2D::accelerate_y);
     ClassDB::bind_method(D_METHOD("accelerate", "acceleration", "to"), &EntityBody2D::accelerate);
+    ClassDB::bind_method(D_METHOD("decelerate_with_friction", "deceleration"), &EntityBody2D::decelerate_with_friction);
+    ClassDB::bind_method(D_METHOD("use_friction", "miu"), &EntityBody2D::use_friction);
     ClassDB::bind_method(D_METHOD("turn_wall"), &EntityBody2D::turn_wall);
     ClassDB::bind_method(D_METHOD("turn_ceiling_ground"), &EntityBody2D::turn_ceiling_ground);
-    ClassDB::bind_method(D_METHOD("use_friction", "miu"), &EntityBody2D::use_friction);
     ClassDB::bind_method(D_METHOD("jump", "jumping_speed", "is_accumulating_mode"), &EntityBody2D::jump, false);
     ClassDB::bind_method(D_METHOD("correct_on_wall_corner", "steps"), &EntityBody2D::correct_on_wall_corner, 4);
-    ClassDB::bind_method(D_METHOD("correct_onto_floor","steps"), &EntityBody2D::correct_onto_floor, 20);
+    ClassDB::bind_method(D_METHOD("correct_onto_floor","steps"), &EntityBody2D::correct_onto_floor, 10);
 }
 
 // Constructor and Destructor
@@ -171,11 +176,26 @@ Vector2 EntityBody2D::_get_gravity() const {
     return double(prjs->get_setting("physics/2d/default_gravity", 980.0)) * Vector2(prjs->get_setting("physics/2d/default_gravity_vector", Vector2(0.0, 1.0)));
 }
 
+Vector2 EntityBody2D::_caulculate_gravity_global_velocity(Vector2 &global_velocity, Vector2 &gravity_vector) {
+    double mfs = max_falling_speed * max_falling_speed_scale;
+    Vector2 grdir = gravity_vector.normalized();
+    Vector2 rst = global_velocity + gravity_vector * gravity_scale * get_delta(this);
+    bool on_falling = rst.dot(grdir) > 0.0;
+    if (mfs > 0.0 && on_falling) {
+        rst = Transform2DAlgo::get_projection_limit(rst, grdir, mfs);
+    }
+    return rst;
+}
+
+void EntityBody2D::_move_without_collision(Vector2 &global_velocity, Vector2 &gravity_vector) {
+    if (gravity_scale != 0.0) {
+        set_global_velocity(_caulculate_gravity_global_velocity(global_velocity, gravity_vector));
+    }
+    set_global_position(get_global_position() + get_global_velocity() * get_delta(this));
+}
 
 // Methods
 bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
-    bool ret = false;
-
     // Previous data
     _velocity = velocity;
     _velocity_global = get_global_velocity();
@@ -192,9 +212,15 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
     }
     set_up_direction(grdir != Vector2() ? -grdir.rotated(UtilityFunctions::deg_to_rad(up_direction_angle)) : get_up_direction());
 
+    // Fast execution if no collision available (1st part)
+    if ((get_collision_layer() == 0 && get_collision_mask() == 0) || get_shape_owners().is_empty()) {
+        _move_without_collision(gv, grvec);
+        return false;
+    }
+
     // Speed (Autobody only)
     double rot = get_up_direction().angle() + Math_PI/2.0;
-    if (autobody) {
+    if (autobody && !use_real_velocity) {
         if (max_speed * max_speed_scale > 0.0 && velocity.x != 0.0) { // Speed limitation enabled if max speed is greater than 0.0
             double mvx = UtilityFunctions::signf(velocity.x) * max_speed * max_speed_scale;
             if (speed_is_max_speed) { // Autobody mode: speed assgined to max speed
@@ -221,14 +247,15 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
         }
     }
 
+    // Fast execution if no collision available
+    if (get_collision_mask() == 0 || get_shape_owners().is_empty()) {
+        _move_without_collision(gv, grvec);;
+        return false;
+    }
+
     // Falling
     if (!is_on_floor()) {
-        double mfs = max_falling_speed * max_falling_speed_scale;
-        gv += grvec * gravity_scale * get_delta(this);
-        bool on_falling = gv.dot(grdir) > 0.0;
-        if (mfs > 0.0 && on_falling) {
-            gv = Transform2DAlgo::get_projection_limit(gv, grdir, mfs);
-        }
+        gv = _caulculate_gravity_global_velocity(gv, grvec);
     }
     else {
         gv += grdir; // To ensure the body will correctly on the floor, and this will cause signal collided_on_floor emitted continuously on the floor
@@ -238,12 +265,9 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
     set_global_velocity(gv);
 
     // Movement
-    ret = CharacterBody2D::move_and_slide();
+    bool ret = CharacterBody2D::move_and_slide();
     if (use_real_velocity) {
         set_global_velocity(get_real_velocity());
-        if (autobody) {
-            velocity.x = get_global_velocity().rotated(-rot).x;
-        }
     }
     gv = get_global_velocity();
     set_global_velocity(gv); // Update the velocity in the final frame
@@ -270,11 +294,11 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
     return ret;
 }
 
-void EntityBody2D::accelerate_to_max_speed(const double acceleration, const int direction_override) {
+void EntityBody2D::accelerate_to_max_speed(const double acceleration, const int direction) {
     if (!autobody) {
         return;
     }
-    accelerate_local_x(acceleration, max_speed * max_speed_scale * (direction_override == 0 ? UtilityFunctions::signf(velocity.x) : direction_override));
+    accelerate_local_x(acceleration, max_speed * max_speed_scale * direction);
 }
 
 void EntityBody2D::accelerate_local_x(const double acceleration, const double to) {
@@ -307,6 +331,61 @@ void EntityBody2D::accelerate(const double acceleration, const Vector2 &to) {
     set_global_velocity(get_global_velocity().move_toward(to, acceleration * get_delta(this)));
 }
 
+void EntityBody2D::decelerate_with_friction(const double deceleration) {
+    if (!is_on_floor()) {
+        return;
+    }
+
+    Ref<KinematicCollision2D> kc = memnew(KinematicCollision2D);
+    test_move(get_global_transform(), get_gravity_vector().normalized(), kc);
+    Node2D *collider = Object::cast_to<Node2D>(kc->get_collider());
+    if (collider == nullptr) {
+        return;
+    }
+    RID collider_rid = kc->get_collider_rid();
+    
+    // StaticBody2D
+    StaticBody2D *static_body = Object::cast_to<StaticBody2D>(collider);
+    if (static_body != nullptr) {
+        Ref<PhysicsMaterial> phymt = static_body->get_physics_material_override();
+        if (phymt != nullptr) {
+            accelerate_local_x(deceleration * phymt->get_friction(), 0);
+            return;
+        }
+    }
+    // TileMap
+    TileMap *tilemap = Object::cast_to<TileMap>(collider);
+    if (tilemap != nullptr) {
+        Ref<TileSet> tileset = tilemap->get_tileset();
+        if (tileset != nullptr) {
+            int32_t layer = tilemap->get_layer_for_body_rid(collider_rid);
+            Ref<PhysicsMaterial> phymt = tileset->get_physics_layer_physics_material(layer);
+            if (phymt != nullptr) {
+                accelerate_local_x(deceleration * phymt->get_friction(), 0);
+                return;
+            }
+        }
+    }
+    accelerate_local_x(deceleration, 0);
+}
+
+void EntityBody2D::use_friction(const double miu) {
+    if (!is_on_floor()) {
+        return;
+    }
+    // Autobody mode
+    if (autobody) {
+        velocity.x = UtilityFunctions::lerpf(velocity.x, 0, miu * get_delta(this));
+    }
+    // Rigid mode
+    else {
+        Vector2 gv = get_global_velocity();
+        Vector2 gn = gv.slide(get_floor_normal());
+        gv = gn.lerp(gn *0.0, miu * get_delta(this));
+        set_global_velocity(gv);
+    }
+}
+
 void EntityBody2D::turn_wall() {
     // Autobody mode
     if (autobody) {
@@ -332,23 +411,6 @@ void EntityBody2D::turn_ceiling_ground() {
     }
     else {
         set_global_velocity(get_global_velocity().bounce(get_up_direction()));
-    }
-}
-
-void EntityBody2D::use_friction(const double miu) {
-    if (!is_on_floor()) {
-        return;
-    }
-    // Autobody mode
-    if (autobody) {
-        velocity.x = UtilityFunctions::lerpf(velocity.x, 0, miu * get_delta(this));
-    }
-    // Rigid mode
-    else {
-        Vector2 gv = get_global_velocity();
-        Vector2 gn = gv.slide(get_floor_normal());
-        gv = gn.lerp(gn *0.0, miu * get_delta(this));
-        set_global_velocity(gv);
     }
 }
 
@@ -423,10 +485,10 @@ void EntityBody2D::correct_onto_floor(const int steps) {
     }
 
     // Initialization for current position, detect-in length and pushing length
-    Vector2 v = _velocity_global * get_delta(this);
     Vector2 p_push = get_up_direction();
+    Vector2 v = _velocity_global.project(p_push.orthogonal()) * get_delta(this);
     
-    if (UtilityFunctions::is_zero_approx(v.project(p_push.orthogonal()).length_squared())) {
+    if (UtilityFunctions::is_zero_approx(v.length_squared())) {
         return;
     }
 
@@ -438,9 +500,8 @@ void EntityBody2D::correct_onto_floor(const int steps) {
         p_cur += p_push;
         set_global_position(p_cur);
 
-        if (!test_move(get_global_transform(), v)) {
+        if (!test_move(get_global_transform(), v.normalized())) {
             p = p_cur;
-            velocity.x = _velocity.x;
             set_global_velocity(_velocity_global);
             break;
         }

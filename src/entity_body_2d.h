@@ -36,6 +36,8 @@ private:
 
     // Private methods
     Vector2 _get_gravity() const;
+    Vector2 _caulculate_gravity_global_velocity(Vector2 &global_velocity, Vector2 &gravity_vector);
+    void _move_without_collision(Vector2 &global_velocity, Vector2 &gravity_vector);
 
 protected:
     static void _bind_methods();
@@ -50,19 +52,20 @@ public:
 
     // Methods
     bool move_and_slide(const bool use_real_velocity = false);
-    void accelerate_to_max_speed(const double acceleration, const int direction_override = 0);
+    void accelerate_to_max_speed(const double acceleration, const int direction = 1);
     void accelerate_local_x(const double acceleration, const double to);
     void accelerate_local_y(const double acceleration, const double to);
     void accelerate_local(const double acceleration, const Vector2 &to);
     void accelerate_x(const double acceleration, const double to);
     void accelerate_y(const double acceleration, const double to);
     void accelerate(const double acceleration, const Vector2 &to);
+    void decelerate_with_friction(const double deceleration);
+    void use_friction(const double miu);
     void turn_wall();
     void turn_ceiling_ground();
-    void use_friction(const double miu);
     void jump(const double jumping_speed, const bool is_accumulating_mode = false);
     void correct_on_wall_corner(const int steps = 4);
-    void correct_onto_floor(const int steps = 20);
+    void correct_onto_floor(const int steps = 10);
 
     // Properties Setters and Getters
     Vector2 get_previous_velocity() const;
