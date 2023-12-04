@@ -7,10 +7,11 @@
 #include <godot_cpp/classes/physics_server2d.hpp>
 #include <godot_cpp/classes/physics_direct_body_state2d.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
-#include <godot_cpp/classes/physics_material.hpp>
-#include <godot_cpp/classes/tile_map.hpp>
 #include <godot_cpp/classes/tile_set.hpp>
+#include <godot_cpp/classes/tile_map.hpp>
 #include <godot_cpp/classes/static_body2d.hpp>
+#include <godot_cpp/classes/rigid_body2d.hpp>
+#include <godot_cpp/classes/physics_material.hpp>
 #include <godot_cpp/classes/kinematic_collision2d.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -194,6 +195,7 @@ void EntityBody2D::_move_without_collision(Vector2 &global_velocity, Vector2 &gr
     set_global_position(get_global_position() + get_global_velocity() * get_delta(this));
 }
 
+
 // Methods
 bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
     // Previous data
@@ -249,7 +251,7 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity) {
 
     // Fast execution if no collision available
     if (get_collision_mask() == 0 || get_shape_owners().is_empty()) {
-        _move_without_collision(gv, grvec);;
+        _move_without_collision(gv, grvec);
         return false;
     }
 
@@ -332,37 +334,56 @@ void EntityBody2D::accelerate(const double acceleration, const Vector2 &to) {
 }
 
 void EntityBody2D::decelerate_with_friction(const double deceleration) {
-    if (!is_on_floor()) {
-        return;
-    }
-
-    Ref<KinematicCollision2D> kc = memnew(KinematicCollision2D);
-    test_move(get_global_transform(), get_gravity_vector().normalized(), kc);
-    Node2D *collider = Object::cast_to<Node2D>(kc->get_collider());
-    if (collider == nullptr) {
-        return;
-    }
-    RID collider_rid = kc->get_collider_rid();
-    
-    // StaticBody2D
-    StaticBody2D *static_body = Object::cast_to<StaticBody2D>(collider);
-    if (static_body != nullptr) {
-        Ref<PhysicsMaterial> phymt = static_body->get_physics_material_override();
-        if (phymt != nullptr) {
-            accelerate_local_x(deceleration * phymt->get_friction(), 0);
-            return;
-        }
-    }
-    // TileMap
-    TileMap *tilemap = Object::cast_to<TileMap>(collider);
-    if (tilemap != nullptr) {
-        Ref<TileSet> tileset = tilemap->get_tileset();
-        if (tileset != nullptr) {
-            int32_t layer = tilemap->get_layer_for_body_rid(collider_rid);
-            Ref<PhysicsMaterial> phymt = tileset->get_physics_layer_physics_material(layer);
-            if (phymt != nullptr) {
-                accelerate_local_x(deceleration * phymt->get_friction(), 0);
-                return;
+    if (is_on_floor()) {
+        // Gets kinematic collision information
+        Ref<KinematicCollision2D> kc = memnew(KinematicCollision2D);
+        test_move(get_global_transform(), get_gravity_vector().normalized(), kc);
+        Node2D *collider = Object::cast_to<Node2D>(kc->get_collider()); // Gets collided body
+        if (collider != nullptr) {
+            RID collider_rid = kc->get_collider_rid();
+            union { // Uses union to save more memory
+                TileMap *tilemap;
+                StaticBody2D *block;
+                RigidBody2D *rigid;
+            } body;
+            // StaticBody2D
+            body.block = Object::cast_to<StaticBody2D>(collider);
+            if (body.block != nullptr) {
+                Ref<PhysicsMaterial> phymt = body.block->get_physics_material_override();
+                if (phymt != nullptr && phymt->is_rough()) {
+                    accelerate_local_x(deceleration * phymt->get_friction(), 0.0);
+                    return;
+                }
+            }
+            // RigidBody2D
+            body.rigid = Object::cast_to<RigidBody2D>(collider);
+            if (body.rigid != nullptr) {
+                Ref<PhysicsMaterial> phymt = body.rigid->get_physics_material_override();
+                if (phymt != nullptr && phymt->is_rough()) {
+                    accelerate_local_x(deceleration * phymt->get_friction(), 0.0);
+                    return;
+                }
+            }
+            // TileMap
+            body.tilemap = Object::cast_to<TileMap>(collider);
+            if (body.tilemap != nullptr) {
+                Ref<TileSet> tileset = body.tilemap->get_tileset();
+                if (tileset != nullptr) {
+                    int32_t layer = body.tilemap->get_layer_for_body_rid(collider_rid);
+                    Ref<PhysicsMaterial> phymt = tileset->get_physics_layer_physics_material(layer);
+                    if (phymt != nullptr && phymt->is_rough()) {
+                        accelerate_local_x(deceleration * phymt->get_friction(), 0.0);
+                        return;
+                    }
+                }
+            }
+            // Other bodies, needs "friction" metadata
+            if (collider->has_meta("friction")) {
+                double friction = double(collider->get_meta("friction"));
+                if (friction != Math_NAN) {
+                    accelerate_local_x(deceleration * UtilityFunctions::clampf(friction, 0.0, 1.0), 0.0);
+                    return;
+                }
             }
         }
     }
@@ -534,7 +555,7 @@ Vector2 EntityBody2D::get_gravity_vector() const {
 }
 
 double EntityBody2D::get_gravity_rotation_angle() const {
-    return get_gravity_vector().angle() - Math_PI / 2;
+    return get_gravity_vector().orthogonal().angle();
 }
 
 double EntityBody2D::get_damp() const {
