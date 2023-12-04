@@ -81,6 +81,7 @@ global_velocity += acceleration * delta # 加速度为 Vector2 类型
 ```
 * `jump()`方法会让该物体`up_direction`进行跳跃，跳跃速度的单位为***pixels/s***，还有一个布尔值参数，若为`true`，则该物体不会先截断下落速度然后赋予跳跃速度，而是直接累加到当前速度上，适合用于增强跳跃高度。
 * `use_friction()`方法利用`lerp()`方法来让该物体**在地面上运动时**产生摩擦效果。
+* `decelerate_with_friction(float deceleration)`方法会根据传入的`deceleration`及所在地面的光滑程度来对该物体进行减速。如果地面为`TileMap`、`StaticBody2D`（`AnimatableBody2D`）和`RigidBody2D`，请为其提供 `PhysicsMaterial`资源，并开启`roughness`属性，将`friction`属性调为小于1.0的数值即可使地面光滑；若地面为`CharacterBody2D`，请新建一个元数据，命名为`friction`，将值设定为`float`类型，介于0.0~1.0之间即可。 **注意:** 由于该方法采用了`test_move()`，计算量较大，因此会比较吃性能，故在使用时需格外谨慎，控制好调用该方法的物体的数量，非必要不要调用该方法来进行减速操作。
 
 ### 校正方法
 在开发过程中，开发者也会在开发可移动角色时遇到一些问题，尤其是对于制作类马里奥游戏的开发者来说更是如此。马里奥可以走过一格宽的空隙，但实际开发时却因为自己的角色无法通过这样的空隙对此头疼不已。而马里奥顶到东西时，由于使用了矩形判定箱，导致一部分视觉上会让马里奥在顶到方块侧边时会顺势滑过跳上去的情况，变成了马里奥被判定为顶头而下落，为此实装了两个方法：`correct_on_wall_corner()`和`correct_onto_floor()`。前者用来解决前面提到的“视觉欺骗”问题，而后者则用来让物体能够通过一格宽的缝隙。  
