@@ -13,9 +13,6 @@ private:
     // Exported properties
     Vector2 velocity;
     bool autobody;
-    double max_speed;
-    double max_speed_scale;
-    bool speed_is_max_speed;
     double damp_enabled;
     double damp_min_speed;
 
@@ -29,7 +26,6 @@ private:
     // Hiden properties
     Vector2 _velocity;
     Vector2 _velocity_global;
-    double _max_velocity_x;
 
     double _damped_min_speed;
     double _damped_min_velocity_global_axis_x;
@@ -52,7 +48,6 @@ public:
 
     // Methods
     bool move_and_slide(const bool use_real_velocity = false);
-    void accelerate_to_max_speed(const double acceleration, const int direction = 1);
     void accelerate_local_x(const double acceleration, const double to);
     void accelerate_local_y(const double acceleration, const double to);
     void accelerate_local(const double acceleration, const Vector2 &to);
@@ -83,14 +78,8 @@ public:
     void set_velocity(const Vector2 &p_velocity);
     Vector2 get_velocity() const;
 
-    void set_max_speed(const double p_max_speed);
-    double get_max_speed() const;
-
-    void set_max_speed_scale(const double p_max_speed_scale);
-    double get_max_speed_scale() const;
-
-    void set_speed_is_max_speed(const bool p_speed_is_max_speed);
-    bool is_speed_set_to_max_speed() const;
+    void set_autobody(const bool p_autobody);
+    bool is_autobody() const;
 
     void set_global_velocity(const Vector2 &p_global_velocity);
     Vector2 get_global_velocity() const;
@@ -100,9 +89,6 @@ public:
 
     void set_damp_min_speed(const double p_damp_min_speed);
     double get_damp_min_speed() const;
-
-    void set_autobody(const bool p_autobody);
-    bool is_autobody() const;
 
     void set_gravity_scale(const double p_gravity_scale);
     double get_gravity_scale() const;

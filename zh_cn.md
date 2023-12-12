@@ -12,7 +12,7 @@
 
 `EntityBody2D`类自带重力系统，其中，`gravity`, 和`max_falling_speed`这两个属性可以让开发者快速调节物体的重力属性。同时，`EntityBody2D`的`velocity`属性暴露在节点检查器中，方便开发者修改以设置该物体的初速度。  
 对于多向重力游戏，本插件的`EntityBody2D`还可以与`Area2D`发生互动来实现更加逼真的重力效果，只需调整该`Area2D`的`gravity_space_override`属性及其相关属性即可。当然，本插件也实现了物体阻尼，只要物体进入了启用`linear_damp_space_override`的`Area2D`区域，该物体就会受到该区域的阻尼影响而减速。  
-大部分情况下，如果只调整了`EntityBody2D`的`velocity`属性，则该物体在进入修改了重力环境的`Area2D`的过程中，其运动结果会出现问题，尤其是行走这一行为，同时还会导致`velocity`的精确度严重降低。为此，本插件引入了`autobody模式，专门为这类物体打造，该属性会强制固定该物体的`velocity`.x，使其行走不受更改重力环境的影响。为了能将 `velocity`.x限制在一定范围内，于是引入了`max_speed`属性，该属性会将`velocity`.x限制在[-max_speed, max_speed]这个区间内。若需要让`max_speed`起效，须开启`autobody`模式。  
+大部分情况下，如果只调整了`EntityBody2D`的`velocity`属性，则该物体在进入修改了重力环境的`Area2D`的过程中，其运动结果会出现问题，尤其是行走这一行为，同时还会导致`velocity`的精确度严重降低。为此，本插件引入了`autobody`模式，专门为这类物体打造，该属性会强制固定该物体的`velocity`.x，使其行走不受更改重力环境的影响。为了能将 `velocity`.x限制在一定范围内，于是引入了`max_speed`属性，该属性会将`velocity`.x限制在[-`max_speed`, `max_speed`]这个区间内。若需要让`max_speed`起效，须开启`autobody`模式。  
 
 从2.2版本起，开发者将无法直接修改重力加速度的数值，而是跟`RigidBody2D`一样需要通过访问`gravity_scale`来修改重力倍率。对于想要通过物体外节点(如`Area2D`)来快速影响物体物理属性的开发者，本插件新增了`max_speed_scale`和`max_falling_speed_scale`这两个属性以实现此效果。如果物体进入了`Area2D`，只需修改这两个属性即可，如果离开了该节点所管辖区域，就把这些数值直接调回1.0就行，是不是非常简单呐？  
 
