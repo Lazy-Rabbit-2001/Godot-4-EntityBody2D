@@ -12,7 +12,7 @@ This provides an extending class from `CharacterBody2D` named `EntityBody2D`, wh
 
 `EntityBody2D` brings built-in gravity system, with `gravity` and `max_falling_speed` presented to make designers get fast modification on gravity settings of a body inheriting from this class. `velocity` of `EntityBody2D` is exposed in the inspector, so every developer can modify it directly to assign the body's initial velocity.  
 For multi-gravity games, the instances of `EntityBody2D` are allowed to behave more physically and able to interact with `Area2D`s with `gravity_space_override` mode on and related properties adjusted. In addition, damp is also effective to `EntityBody2D`'s instances whose `damp_mode` is on when they enters an `Area2D` with `linear_damp_space_override`.  
-In most cases, a body with `velocity` changed will perform weirdly during the progress of entering a gravity-space-overridden `Area2D`, which also changes the velocity of the body to an unexpected and unsatisfying value. To make the body act, especially walking on the "ground", as they should be expected to do, `autobody` mode is introduced to solve this problem. This property forces the body walks with its `velocity`.x fixed so that the body will not move shakingly. To get the `velocity`.x limited within a range, a `max_speed` is introduced, which clamps the `velocity`.x within [-max_speed, max_speed]. But if developers want to make this implementation successfully work, `autobody` mode should be turned on.  
+In most cases, a body with `velocity` changed will perform weirdly during the progress of entering a gravity-space-overridden `Area2D`, which also changes the velocity of the body to an unexpected and unsatisfying value. To make the body act, especially walking on the "ground", as they should be expected to do, `autobody` mode is introduced to solve this problem. This property forces the body walks with its `velocity`.x fixed so that the body will not move shakingly. 
 
 From v2.2, gravity is not set directly anymore, instead, like what it is done in `RigidBody2D`, developers must get access to `gravity_scale` to adjust the gravity of a body. Also, for developers who are willing to see external nodes, like `Area2D`, are able to affect the physics of a body easily and restore them when the affection is invalid, `max_speed_scale` and `max_falling_speed_scale` are suggested to modify to make these dreams come true. Just override these values when a body enters an `Area2D` and restore them to 1.0 when they leave, see how simple it is!
 
@@ -49,11 +49,9 @@ In actual projects, the developers hope to edit the velocity in the inspector of
 
 Let's have an example: If you have set `velocity` of a body to `Vector2(10, 0)` with `up_direction.angle()` PI/4(45°), the final velocity will be `Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)`  
 
-In most situations, some objects, like players and enemies, will behave weirdly during the change of gravity field, especially when they are walking. If there is only velocity modified, they will walk unstably with incorrect velocity being set. To solve this problem, it is recommended and required to turn on `autobody` for this situation to force fixed `velocity.x` put into application. Also, `max_speed` will help you to make a limitation for the body's `velocity`.x, extinguish when it comes to accelerating a character. Like `max_falling_speed_scale`, `max_speed_scale` is also provided for `max_speed`.
-Sometimes, a body would walk slowly in the water and regularly when leaves from it, but the `velocity`.x is cut down and should call some method to accelerate it to the maximum. To make this physics easier to work, developers can turn on `speed_is_max_speed` mode, which will lock the `velocity`.x to maximum of the speed and they just modify the `max_speed` to set initial and real-time `velocity.x`.  
+In most situations, some objects, like players and enemies, will behave weirdly during the change of gravity field, especially when they are walking. If there is only velocity modified, they will walk unstably with incorrect velocity being set. To solve this problem, it is recommended and required to turn on `autobody` for this situation to force fixed `velocity.x` put into application.
 ```diff
 ! Please turn on `autobody` before using `max_speed` and `speed_is_max_speed`!
-! Only `max_speed` * `max_speed_scale` greater than 0 can it take effect on `velocity`.x!
 ```
 
 ## `move_and_slide()` in `EntityBody2D`
@@ -91,7 +89,7 @@ Thus, two methods `correct_on_wall_corner()` and `correct_onto_floor()` are impl
 
 
 # Known Issues
-* Due to the midium accuracy of GodotPhysics2D, when the angle of `up_direction` cannot be divided completely by PI/2, the body will, in great chance, behave unexpectedly. This issue has got repaired in a tricky way that has increased the performance cost, which could get optimizd when [Jolt by Mikael Hermansson](https://github.com/godot-jolt/godot-jolt) is installed and enabled.
+* Due to the midium accuracy of GodotPhysics2D, when the angle of `up_direction` cannot be divided completely by PI/2, the body will, in great chance, behave unexpectedly. This issue has got repaired in a tricky way that has increased the performance cost.
 
 # Requirements
 ## Supported Godot Versions
