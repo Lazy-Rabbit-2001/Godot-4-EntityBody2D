@@ -12,8 +12,7 @@
 
 `EntityBody2D`类自带重力系统，其中，`gravity`, 和`max_falling_speed`这两个属性可以让开发者快速调节物体的重力属性。同时，`EntityBody2D`的`velocity`属性暴露在节点检查器中，方便开发者修改以设置该物体的初速度。  
 对于多向重力游戏，本插件的`EntityBody2D`还可以与`Area2D`发生互动来实现更加逼真的重力效果，只需调整该`Area2D`的`gravity_space_override`属性及其相关属性即可。当然，本插件也实现了物体阻尼，只要物体进入了启用`linear_damp_space_override`的`Area2D`区域，该物体就会受到该区域的阻尼影响而减速。  
-大部分情况下，如果只调整了`EntityBody2D`的`velocity`属性，则该物体在进入修改了重力环境的`Area2D`的过程中，其运动结果会出现问题，尤其是行走这一行为，同时还会导致`velocity`的精确度严重降低。为此，本插件引入了`autobody`模式，专门为这类物体打造，该属性会强制固定该物体的`velocity`.x，使其行走不受更改重力环境的影响。为了能将 `velocity`.x限制在一定范围内，于是引入了`max_speed`属性，该属性会将`velocity`.x限制在[-`max_speed`, `max_speed`]这个区间内。若需要让`max_speed`起效，须开启`autobody`模式。  
-
+大部分情况下，如果只调整了`EntityBody2D`的`velocity`属性，则该物体在进入修改了重力环境的`Area2D`的过程中，其运动结果会出现问题，尤其是行走这一行为，同时还会导致`velocity`的精确度严重降低。为此，本插件引入了`autobody`模式，专门为这类物体打造，该属性会强制固定该物体的`velocity`.x，使其行走不受更改重力环境的影响。
 从2.2版本起，开发者将无法直接修改重力加速度的数值，而是跟`RigidBody2D`一样需要通过访问`gravity_scale`来修改重力倍率。对于想要通过物体外节点(如`Area2D`)来快速影响物体物理属性的开发者，本插件新增了`max_speed_scale`和`max_falling_speed_scale`这两个属性以实现此效果。如果物体进入了`Area2D`，只需修改这两个属性即可，如果离开了该节点所管辖区域，就把这些数值直接调回1.0就行，是不是非常简单呐？  
 
 为了能够让重力系统真正发挥作用，本人把`move_and_slide()`这一父类方法进行了重定义，同时向其中新增了个`use_real_velocity`参数，会影响到该物体最终的运动结果。  
@@ -48,12 +47,7 @@
 
 同样举个例子：若`velocity`为`Vector2(10, 0)`，上方向全局角`up_direction.angle()`为PI/4(45°)，则实际速度为`Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)` 。
 
-大部分情况下，诸如玩家、敌人这类物体，其运动会在切换重力场的过程中发生问题，尤其是其行走运动，仅修改`velocity`属性会导致其行走不正常。为解决该问题，强烈建议开启`autobody`属性来完成行走的属性设置，该属性通过强制设置行走速度来保证物体的行走行为平稳如履。同时，本插件还增加了`max_speed`属性，允许开发者限制该物体的`velocity`.x的值，在制作角色加速效果时极其有用。当然，同`max_falling_speed_scale`一样，本插件也为`max_speed`引入了`max_speed_scale`来设置`max_speed`的生效倍率。  
-有时候，物体本应在进入水中的时候会走得很慢，出水之后其走路速度又会恢复原状，但`velocity`.x在进入水中之后就已经被削减过了，出了水还要把速度加速回原状，就比较麻烦。为了简化这种效果的实现，引入了`speed_is_max_speed`这一属性，开发者将其打开后，`velocity`.x就会自动设为`max_speed`，开发者此时只需要设置`max_speed`就可以顺带设置该物体`velocity`.x的初始值和实时值了
-```diff
-! 使用`max_speed`与`speed_is_max_speed`这两个属性前需先开启`autobody`属性！
-! 只有当`max_speed` * `max_speed_scale` 大于0时才能限制物体的velocity.x！
-```
+大部分情况下，诸如玩家、敌人这类物体，其运动会在切换重力场的过程中发生问题，尤其是其行走运动，仅修改`velocity`属性会导致其行走不正常。为解决该问题，强烈建议开启`autobody`属性来完成行走的属性设置，该属性通过强制设置行走速度来保证物体的行走行为平稳如履。
 
 ## `EntityBody2D`中重定义的`move_and_slide()`方法
 该节点类的另一个核心点便是**重定义后**的`move_and_slide()`方法，虽然方法名字与父类相同，但多了一个参数，开发者了解该参数后将能对自己的游戏开发有所帮助。
@@ -88,7 +82,7 @@ global_velocity += acceleration * delta # 加速度为 Vector2 类型
 
 # 已知问题
 ## `velocity`的设置与获取
-* 由于Godot自带的2D物理引擎GodotPhysics2D的精度尚且不足，当`up_direction`的角度不为90°的整数倍时，其物理行为就容易会出现问题。该问题虽已被修复，但修复方法的性能开销较大，若对此有所需求，可考虑使用[Mikael Hermansson的Jolt物理引擎插件](https://github.com/godot-jolt/godot-jolt)来缓解该问题。
+* 由于Godot自带的2D物理引擎GodotPhysics2D的精度尚且不足，当`up_direction`的角度不为90°的整数倍时，其物理行为就容易会出现问题。该问题虽已被修复，但修复方法的性能开销较大，请注意！
 
 # 安装需求
 ## 支持的Godot版本
