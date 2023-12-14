@@ -50,9 +50,6 @@ In actual projects, the developers hope to edit the velocity in the inspector of
 Let's have an example: If you have set `velocity` of a body to `Vector2(10, 0)` with `up_direction.angle()` PI/4(45°), the final velocity will be `Vector2(10, 0).rotated(PI/4) => Vector2(5√2, 5√2)`  
 
 In most situations, some objects, like players and enemies, will behave weirdly during the change of gravity field, especially when they are walking. If there is only velocity modified, they will walk unstably with incorrect velocity being set. To solve this problem, it is recommended and required to turn on `autobody` for this situation to force fixed `velocity.x` put into application.
-```diff
-! Please turn on `autobody` before using `max_speed` and `speed_is_max_speed`!
-```
 
 ## `move_and_slide()` in `EntityBody2D`
 The core of the class is **redefined** `move_and_slide()` method, though its name maintains, there is added a new extra parameter that each developer needs to know to have a better understanding of its workflow.
