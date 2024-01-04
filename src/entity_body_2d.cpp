@@ -29,9 +29,16 @@ void EntityBody2D::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_global_velocity", "p_global_velocity"), &EntityBody2D::set_global_velocity);
     ClassDB::bind_method(D_METHOD("get_global_velocity"), &EntityBody2D::get_global_velocity);
     ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::VECTOR2, "global_velocity", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR),"set_global_velocity", "get_global_velocity");
-    ClassDB::bind_method(D_METHOD("set_walking_speed", "p_walking_speed"), &EntityBody2D::set_walking_speed);
-    ClassDB::bind_method(D_METHOD("get_walking_speed"), &EntityBody2D::get_walking_speed);
-    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::FLOAT, "walking_speed", PROPERTY_HINT_RANGE, "-1, 1, 0.001, or_less, or_greater, hide_slider, suffix:px/s"),"set_walking_speed", "get_walking_speed");
+    ADD_GROUP("Threshold Speed", "threshold_speed_");
+    ClassDB::bind_method(D_METHOD("set_threshold_speed", "p_threshold_speed"), &EntityBody2D::set_threshold_speed);
+    ClassDB::bind_method(D_METHOD("get_threshold_speed"), &EntityBody2D::get_threshold_speed);
+    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::FLOAT, "threshold_speed", PROPERTY_HINT_RANGE, "-1, 1, 0.001, or_more, hide_slider, suffix:px/s"),"set_threshold_speed", "get_threshold_speed");
+    ClassDB::bind_method(D_METHOD("set_threshold_speed_initial_direction", "p_threshold_speed_initial_direction"), &EntityBody2D::set_threshold_speed_initial_direction);
+    ClassDB::bind_method(D_METHOD("get_threshold_speed_initial_direction"), &EntityBody2D::get_threshold_speed_initial_direction);
+    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::INT, "threshold_speed_initial_direction", PROPERTY_HINT_ENUM, "Left:-1, None:0, Right:1"),"set_threshold_speed_initial_direction", "get_threshold_speed_initial_direction");
+    ClassDB::bind_method(D_METHOD("set_threshold_speed_correction_acceleration", "p_threshold_speed_correction_acceleration"), &EntityBody2D::set_threshold_speed_correction_acceleration);
+    ClassDB::bind_method(D_METHOD("get_threshold_speed_correction_acceleration"), &EntityBody2D::get_threshold_speed_correction_acceleration);
+    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::FLOAT, "threshold_speed_correction_acceleration", PROPERTY_HINT_RANGE, "0, 1, 0.001, or_more, hide_slider, suffix:px/s^2"),"set_threshold_speed_correction_acceleration", "get_threshold_speed_correction_acceleration");
     ADD_GROUP("Damp", "");
     ClassDB::bind_method(D_METHOD("set_damp_enabled", "p_damp_enabled"), &EntityBody2D::set_damp_enabled);
     ClassDB::bind_method(D_METHOD("is_damp_enabled"), &EntityBody2D::is_damp_enabled);
@@ -54,7 +61,7 @@ void EntityBody2D::_bind_methods()
     ClassDB::bind_method(D_METHOD("get_up_direction_angle"), &EntityBody2D::get_up_direction_angle);
     ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::FLOAT, "up_direction_angle", PROPERTY_HINT_RANGE, "-180, 180, 0.001, degrees"),"set_up_direction_angle", "get_up_direction_angle");
 
-    ClassDB::bind_method(D_METHOD("move_and_slide", "use_walking_speed", "use_real_velocity"), &EntityBody2D::move_and_slide, true, false);
+    ClassDB::bind_method(D_METHOD("move_and_slide", "use_real_velocity"), &EntityBody2D::move_and_slide, false);
     ClassDB::bind_method(D_METHOD("calculate_gravity"), &EntityBody2D::calculate_gravity);
     ClassDB::bind_method(D_METHOD("calculate_damp"), &EntityBody2D::calculate_damp);
     ClassDB::bind_method(D_METHOD("accelerate_local_x", "acceleration", "to"), &EntityBody2D::accelerate_local_x);
@@ -85,18 +92,21 @@ EntityBody2D::EntityBody2D() {}
 
 EntityBody2D::~EntityBody2D() {}
 
+void EntityBody2D::_ready()
+{
+    if (threshold_speed_initial_direction != 0 && threshold_speed != 0.0) {
+        velocity.x = threshold_speed * threshold_speed_initial_direction;
+        set_velocity(velocity);
+    }
+}
+
 Vector2 EntityBody2D::_get_gravity() const 
 {
     ProjectSettings *prjs = ProjectSettings::get_singleton();
     return Vector2(prjs->get_setting("physics/2d/default_gravity_vector", Vector2(0.0, 1.0))) * double(prjs->get_setting("physics/2d/default_gravity", 980.0)); // Gets gravity from project settings
 }
 
-Vector2 EntityBody2D::_caulculate_gravity_global_velocity(const Vector2 &global_velocity, const Vector2 &gravity_vector) 
-{
-    return Vector2();
-}
-
-bool EntityBody2D::move_and_slide(const bool use_walking_speed, const bool use_real_velocity) 
+bool EntityBody2D::move_and_slide(const bool use_real_velocity) 
 {
     // Stores data in previous call of this method
     _velocity = velocity;
@@ -113,10 +123,13 @@ bool EntityBody2D::move_and_slide(const bool use_walking_speed, const bool use_r
     }
     set_up_direction(grdir != Vector2() ? -grdir.rotated(UtilityFunctions::deg_to_rad(up_direction_angle)) : get_up_direction());
 
-    if (use_walking_speed) {
-        velocity.x = walking_speed;
+    // Threshold speed
+    if (!_threshold_speed_affected && threshold_speed > 0.0 && !UtilityFunctions::is_zero_approx(velocity.x)) {
+        double dir = UtilityFunctions::signf(velocity.x);
+        velocity.x = UtilityFunctions::move_toward(velocity.x, threshold_speed * dir, threshold_speed_correction_acceleration * get_delta(this));
         set_velocity(velocity);
     }
+    _threshold_speed_affected = false; // Restore threshold affection
 
     // Makes the body move
     bool result = CharacterBody2D::move_and_slide();
@@ -128,7 +141,6 @@ bool EntityBody2D::move_and_slide(const bool use_walking_speed, const bool use_r
 
     // Signals emission;
     if (is_on_wall()) {
-        walking_speed = velocity.x;
         emit_signal("collided_wall");
     }
     if (is_on_ceiling()) {
@@ -180,14 +192,14 @@ void EntityBody2D::calculate_damp()
         gv = gvlx + gvly;
     }
     set_global_velocity(gv);
-    walking_speed = velocity.x;
+    _threshold_speed_affected = true;
 }
 
 void EntityBody2D::accelerate_local_x(const double acceleration, const double to) 
 {
     velocity.x = UtilityFunctions::move_toward(velocity.x, to, acceleration * get_delta(this));
     set_velocity(velocity);
-    walking_speed = velocity.x;
+    _threshold_speed_affected = true;
 }
 
 void EntityBody2D::accelerate_local_y(const double acceleration, const double to) 
@@ -199,7 +211,7 @@ void EntityBody2D::accelerate_local_y(const double acceleration, const double to
 void EntityBody2D::accelerate_local(const double acceleration, const Vector2 &to) 
 {
     set_velocity(velocity.move_toward(to, acceleration * get_delta(this)));
-    walking_speed = velocity.x;
+    _threshold_speed_affected = true;
 }
 
 void EntityBody2D::accelerate_x(const double acceleration, const double to) 
@@ -207,7 +219,7 @@ void EntityBody2D::accelerate_x(const double acceleration, const double to)
     Vector2 gv = get_global_velocity();
     gv.x = UtilityFunctions::move_toward(gv.x, to, acceleration * get_delta(this));
     set_global_velocity(gv);
-    walking_speed = velocity.x;
+    _threshold_speed_affected = true;
 }
 
 void EntityBody2D::accelerate_y(const double acceleration, const double to) 
@@ -220,7 +232,7 @@ void EntityBody2D::accelerate_y(const double acceleration, const double to)
 void EntityBody2D::accelerate(const double acceleration, const Vector2 &to) 
 {
     set_global_velocity(get_global_velocity().move_toward(to, acceleration * get_delta(this)));
-    walking_speed = velocity.x;
+    _threshold_speed_affected = true;
 }
 
 void EntityBody2D::decelerate_with_friction(const double deceleration) 
@@ -279,7 +291,7 @@ void EntityBody2D::decelerate_with_friction(const double deceleration)
         }
     }
     accelerate_local_x(deceleration, 0); // Deceleration
-    walking_speed = velocity.x;
+    _threshold_speed_affected = true;
 }
 
 void EntityBody2D::use_friction(const double miu) 
@@ -298,7 +310,7 @@ void EntityBody2D::use_friction(const double miu)
     Vector2 gn = gv.slide(get_floor_normal());
     gv = gn.lerp(gn *0.0, miu * get_delta(this));
     set_global_velocity(gv);
-    walking_speed = velocity.x;
+    _threshold_speed_affected = true;
 }
 
 void EntityBody2D::turn_wall() 
@@ -320,7 +332,7 @@ void EntityBody2D::turn_wall()
     else {
         set_global_velocity(get_global_velocity().reflect(get_up_direction()));
     }
-    walking_speed = velocity.x;
+    _threshold_speed_affected = true;
 }
 
 void EntityBody2D::turn_ceiling_ground() 
@@ -378,7 +390,7 @@ void EntityBody2D::correct_on_wall_corner(const int steps)
         if (!cl) {
             p = p_cur;
             set_velocity(_velocity);
-            walking_speed = velocity.x;
+            _threshold_speed_affected = true;
             set_global_position(p);
             return;
         }
@@ -393,7 +405,7 @@ void EntityBody2D::correct_on_wall_corner(const int steps)
         if (!cl) {
             p = p_cur;
             set_velocity(_velocity);
-            walking_speed = velocity.x;
+            _threshold_speed_affected = true;
             set_global_position(p);
             return;
         }
@@ -427,7 +439,7 @@ void EntityBody2D::correct_onto_floor(const int steps)
         if (!test_move(get_global_transform(), v.normalized())) {
             p = p_cur;
             set_global_velocity(_velocity_global);
-            walking_speed = velocity.x;
+            _threshold_speed_affected = true;
             break;
         }
     }
@@ -538,14 +550,34 @@ Vector2 EntityBody2D::get_global_velocity() const
     return CharacterBody2D::get_velocity();
 }
 
-void EntityBody2D::set_walking_speed(const double p_walking_speed)
+void EntityBody2D::set_threshold_speed(const double p_threshold_speed)
 {
-    walking_speed = p_walking_speed;
+    threshold_speed = p_threshold_speed;
 }
 
-double EntityBody2D::get_walking_speed() const
+double EntityBody2D::get_threshold_speed() const
 {
-    return walking_speed;
+    return threshold_speed;
+}
+
+void EntityBody2D::set_threshold_speed_initial_direction(const int8_t p_threshold_speed_initial_direction)
+{
+    threshold_speed_initial_direction = p_threshold_speed_initial_direction; 
+}
+
+int8_t EntityBody2D::get_threshold_speed_initial_direction() const
+{
+    return threshold_speed_initial_direction;
+}
+
+void EntityBody2D::set_threshold_speed_correction_acceleration(const double p_threshold_speed_correction_acceleration)
+{
+    threshold_speed_correction_acceleration = p_threshold_speed_correction_acceleration;
+}
+
+double EntityBody2D::get_threshold_speed_correction_acceleration() const
+{
+    return threshold_speed_correction_acceleration;
 }
 
 void EntityBody2D::set_damp_enabled(const bool p_damp_enabled) 

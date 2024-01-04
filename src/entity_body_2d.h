@@ -12,7 +12,9 @@ class EntityBody2D : public CharacterBody2D {
 private:
     // Properties
     Vector2 velocity = Vector2(); // Local velocity
-    double walking_speed = 0.0; // Wherever velocity.x gets changed, this should be reassigned to it except in set_velocity() and set_global_velocity();
+    double threshold_speed = -1.0;
+    int8_t threshold_speed_initial_direction = 0;
+    double threshold_speed_correction_acceleration = 1250.0;
     double damp_enabled = false;
     double damp_min_speed = 0.0;
     double gravity_scale = 0.0;
@@ -22,12 +24,13 @@ private:
 
     Vector2 _velocity;
     Vector2 _velocity_global;
+    bool _threshold_speed_initialized_for_velocity_x;
+    bool _threshold_speed_affected; // Wherever velocity.x gets changed, this should be reassigned to it except in set_velocity() and set_global_velocity();
     double _damped_min_speed;
     double _damped_min_velocity_global_axis_x;
 
     // Methods
     Vector2 _get_gravity() const;
-    Vector2 _caulculate_gravity_global_velocity(const Vector2 &global_velocity, const Vector2 &gravity_vector);
 
 protected:
     static void _bind_methods();
@@ -36,7 +39,9 @@ public:
     EntityBody2D();
     ~EntityBody2D();
 
-    bool move_and_slide(const bool use_walking_speed = true, const bool use_real_velocity = false);
+    void _ready() override;
+
+    bool move_and_slide(const bool use_real_velocity = false);
     void calculate_gravity();
     void calculate_damp();
     void accelerate_local_x(const double acceleration, const double to);
@@ -54,7 +59,6 @@ public:
     void correct_onto_floor(const int steps = 10);
     Vector2 get_previous_velocity() const;
     Vector2 get_previous_global_velocity() const;
-    double get_previous_speed() const;
     Vector2 get_gravity_vector() const;
     double get_gravity_rotation_angle() const;
     double get_damp() const;
@@ -67,8 +71,12 @@ public:
     Vector2 get_velocity() const;
     void set_global_velocity(const Vector2 &p_global_velocity);
     Vector2 get_global_velocity() const;
-    void set_walking_speed(const double p_walking_speed);
-    double get_walking_speed() const;
+    void set_threshold_speed(const double p_threshold_speed);
+    double get_threshold_speed() const;
+    void set_threshold_speed_initial_direction(const int8_t p_threshold_speed_initial_direction);
+    int8_t get_threshold_speed_initial_direction() const;
+    void set_threshold_speed_correction_acceleration(const double p_threshold_speed_correction_acceleration);
+    double get_threshold_speed_correction_acceleration() const;
     void set_damp_enabled(const bool p_damp_enabled);
     bool is_damp_enabled() const;
     void set_damp_min_speed(const double p_damp_min_speed);
