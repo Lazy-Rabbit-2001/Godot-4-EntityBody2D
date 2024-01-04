@@ -14,7 +14,7 @@ private:
     Vector2 velocity = Vector2(); // Local velocity
     double threshold_speed = -1.0;
     int8_t threshold_speed_initial_direction = 0;
-    double threshold_speed_correction_acceleration = 1250.0;
+    double threshold_speed_correction_acceleration = 500.0;
     double damp_enabled = false;
     double damp_min_speed = 0.0;
     double gravity_scale = 0.0;

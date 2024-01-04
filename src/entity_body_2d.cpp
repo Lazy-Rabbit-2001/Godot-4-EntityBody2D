@@ -32,13 +32,13 @@ void EntityBody2D::_bind_methods()
     ADD_GROUP("Threshold Speed", "threshold_speed_");
     ClassDB::bind_method(D_METHOD("set_threshold_speed", "p_threshold_speed"), &EntityBody2D::set_threshold_speed);
     ClassDB::bind_method(D_METHOD("get_threshold_speed"), &EntityBody2D::get_threshold_speed);
-    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::FLOAT, "threshold_speed", PROPERTY_HINT_RANGE, "-1, 1, 0.001, or_more, hide_slider, suffix:px/s"),"set_threshold_speed", "get_threshold_speed");
+    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::FLOAT, "threshold_speed", PROPERTY_HINT_RANGE, "-1, 1, 0.001, or_greater, hide_slider, suffix:px/s"),"set_threshold_speed", "get_threshold_speed");
     ClassDB::bind_method(D_METHOD("set_threshold_speed_initial_direction", "p_threshold_speed_initial_direction"), &EntityBody2D::set_threshold_speed_initial_direction);
     ClassDB::bind_method(D_METHOD("get_threshold_speed_initial_direction"), &EntityBody2D::get_threshold_speed_initial_direction);
     ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::INT, "threshold_speed_initial_direction", PROPERTY_HINT_ENUM, "Left:-1, None:0, Right:1"),"set_threshold_speed_initial_direction", "get_threshold_speed_initial_direction");
     ClassDB::bind_method(D_METHOD("set_threshold_speed_correction_acceleration", "p_threshold_speed_correction_acceleration"), &EntityBody2D::set_threshold_speed_correction_acceleration);
     ClassDB::bind_method(D_METHOD("get_threshold_speed_correction_acceleration"), &EntityBody2D::get_threshold_speed_correction_acceleration);
-    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::FLOAT, "threshold_speed_correction_acceleration", PROPERTY_HINT_RANGE, "0, 1, 0.001, or_more, hide_slider, suffix:px/s^2"),"set_threshold_speed_correction_acceleration", "get_threshold_speed_correction_acceleration");
+    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::FLOAT, "threshold_speed_correction_acceleration", PROPERTY_HINT_RANGE, U"0, 1, 0.001, or_greater, hide_slider, suffix:px/s\u00B2"),"set_threshold_speed_correction_acceleration", "get_threshold_speed_correction_acceleration");
     ADD_GROUP("Damp", "");
     ClassDB::bind_method(D_METHOD("set_damp_enabled", "p_damp_enabled"), &EntityBody2D::set_damp_enabled);
     ClassDB::bind_method(D_METHOD("is_damp_enabled"), &EntityBody2D::is_damp_enabled);
@@ -124,7 +124,7 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity)
     set_up_direction(grdir != Vector2() ? -grdir.rotated(UtilityFunctions::deg_to_rad(up_direction_angle)) : get_up_direction());
 
     // Threshold speed
-    if (!_threshold_speed_affected && threshold_speed > 0.0 && !UtilityFunctions::is_zero_approx(velocity.x)) {
+    if (!_threshold_speed_affected && threshold_speed >= 0.0 && !UtilityFunctions::is_zero_approx(velocity.x)) {
         double dir = UtilityFunctions::signf(velocity.x);
         velocity.x = UtilityFunctions::move_toward(velocity.x, threshold_speed * dir, threshold_speed_correction_acceleration * get_delta(this));
         set_velocity(velocity);
