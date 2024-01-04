@@ -23,12 +23,12 @@ void EntityBody2D::_bind_methods()
     ADD_SIGNAL(MethodInfo("collided_ceiling"));
     ADD_SIGNAL(MethodInfo("collided_floor"));
     
-    ClassDB::bind_method(D_METHOD("set_velocity", "p_velocity"), &EntityBody2D::set_velocity);
-    ClassDB::bind_method(D_METHOD("get_velocity"), &EntityBody2D::get_velocity);
+    ClassDB::bind_method(D_METHOD("set_velocality", "p_velocality"), &EntityBody2D::set_velocity);
+    ClassDB::bind_method(D_METHOD("get_velocality"), &EntityBody2D::get_velocity);
+    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::VECTOR2, "velocality", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR),"set_velocality", "get_velocality");
+    ClassDB::bind_method(D_METHOD("set_velocity", "p_velocity"), &EntityBody2D::set_global_velocity);
+    ClassDB::bind_method(D_METHOD("get_velocity"), &EntityBody2D::get_global_velocity);
     ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::VECTOR2, "velocity", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR),"set_velocity", "get_velocity");
-    ClassDB::bind_method(D_METHOD("set_global_velocity", "p_global_velocity"), &EntityBody2D::set_global_velocity);
-    ClassDB::bind_method(D_METHOD("get_global_velocity"), &EntityBody2D::get_global_velocity);
-    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::VECTOR2, "global_velocity", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR),"set_global_velocity", "get_global_velocity");
     ADD_GROUP("Threshold Speed", "threshold_speed_");
     ClassDB::bind_method(D_METHOD("set_threshold_speed", "p_threshold_speed"), &EntityBody2D::set_threshold_speed);
     ClassDB::bind_method(D_METHOD("get_threshold_speed"), &EntityBody2D::get_threshold_speed);

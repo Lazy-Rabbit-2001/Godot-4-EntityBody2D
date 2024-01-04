@@ -11,7 +11,7 @@ class EntityBody2D : public CharacterBody2D {
 
 private:
     // Properties
-    Vector2 velocity = Vector2(); // Local velocity
+    Vector2 velocity = Vector2(); // Local velocity, or `velocality` in GDScript
     double threshold_speed = -1.0;
     int8_t threshold_speed_initial_direction = 0;
     double threshold_speed_correction_acceleration = 500.0;
@@ -44,12 +44,12 @@ public:
     bool move_and_slide(const bool use_real_velocity = false);
     void calculate_gravity();
     void calculate_damp();
-    void accelerate_local_x(const double acceleration, const double to);
-    void accelerate_local_y(const double acceleration, const double to);
-    void accelerate_local(const double acceleration, const Vector2 &to);
-    void accelerate_x(const double acceleration, const double to);
-    void accelerate_y(const double acceleration, const double to);
-    void accelerate(const double acceleration, const Vector2 &to);
+    void accelerate_local_x(const double acceleration, const double to); // For velocality
+    void accelerate_local_y(const double acceleration, const double to); // For velocality
+    void accelerate_local(const double acceleration, const Vector2 &to); // For velocality
+    void accelerate_x(const double acceleration, const double to); // For velocity
+    void accelerate_y(const double acceleration, const double to); // For velocity
+    void accelerate(const double acceleration, const Vector2 &to); // For velocity
     void decelerate_with_friction(const double deceleration);
     void use_friction(const double miu);
     void turn_wall();
@@ -67,8 +67,8 @@ public:
     bool is_leaving_ground() const;
     bool is_falling() const;
 
-    void set_velocity(const Vector2 &p_velocity);
-    Vector2 get_velocity() const;
+    void set_velocity(const Vector2 &p_velocity); // = `set_velocality()` in GDScript
+    Vector2 get_velocity() const; // = `get_velocality()` in GDScript
     void set_global_velocity(const Vector2 &p_global_velocity);
     Vector2 get_global_velocity() const;
     void set_threshold_speed(const double p_threshold_speed);
