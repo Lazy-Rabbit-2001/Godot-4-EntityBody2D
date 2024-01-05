@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GD_ENTITY_BODY2D
+#define GD_ENTITY_BODY2D
 
 #include <godot_cpp/classes/node2d.hpp>
 #include <godot_cpp/classes/area2d.hpp>
@@ -11,16 +12,16 @@ class EntityBody2D : public CharacterBody2D {
 
 private:
     // Properties
-    Vector2 velocity = Vector2(); // Local velocity, or `velocality` in GDScript
-    double threshold_speed = -1.0;
-    int8_t threshold_speed_initial_direction = 0;
-    double threshold_speed_correction_acceleration = 500.0;
-    double damp_enabled = false;
-    double damp_min_speed = 0.0;
-    double gravity_scale = 0.0;
-    double max_falling_speed = 1500.0;
-    bool global_rotation_to_gravity_direction = true;
-    double up_direction_angle = 0.0;
+    Vector2 velocity; // Local velocity, or `velocality` in GDScript
+    bool threshold_speed_enabled;
+    double threshold_speed;
+    double threshold_speed_correction_acceleration;
+    double damp_enabled;
+    double damp_min_speed;
+    double gravity_scale;
+    double max_falling_speed;
+    bool global_rotation_to_gravity_direction;
+    double up_direction_angle;
 
     Vector2 _velocity;
     Vector2 _velocity_global;
@@ -38,8 +39,6 @@ protected:
 public:
     EntityBody2D();
     ~EntityBody2D();
-
-    void _ready() override;
 
     bool move_and_slide(const bool use_real_velocity = false);
     void calculate_gravity();
@@ -73,8 +72,8 @@ public:
     Vector2 get_global_velocity() const;
     void set_threshold_speed(const double p_threshold_speed);
     double get_threshold_speed() const;
-    void set_threshold_speed_initial_direction(const int8_t p_threshold_speed_initial_direction);
-    int8_t get_threshold_speed_initial_direction() const;
+    void set_threshold_speed_enabled(const bool p_threshold_speed_enabled);
+    bool is_threshold_speed_enabled() const;
     void set_threshold_speed_correction_acceleration(const double p_threshold_speed_correction_acceleration);
     double get_threshold_speed_correction_acceleration() const;
     void set_damp_enabled(const bool p_damp_enabled);
@@ -90,3 +89,5 @@ public:
     void set_up_direction_angle(const double p_up_direction_angle);
     double get_up_direction_angle() const;
 };
+
+#endif

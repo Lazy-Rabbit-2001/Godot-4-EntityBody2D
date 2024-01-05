@@ -25,17 +25,17 @@ void EntityBody2D::_bind_methods()
     
     ClassDB::bind_method(D_METHOD("set_velocality", "p_velocality"), &EntityBody2D::set_velocity);
     ClassDB::bind_method(D_METHOD("get_velocality"), &EntityBody2D::get_velocity);
-    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::VECTOR2, "velocality", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR),"set_velocality", "get_velocality");
+    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::VECTOR2, "velocality"),"set_velocality", "get_velocality");
     ClassDB::bind_method(D_METHOD("set_velocity", "p_velocity"), &EntityBody2D::set_global_velocity);
     ClassDB::bind_method(D_METHOD("get_velocity"), &EntityBody2D::get_global_velocity);
     ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::VECTOR2, "velocity", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR),"set_velocity", "get_velocity");
     ADD_GROUP("Threshold Speed", "threshold_speed_");
+    ClassDB::bind_method(D_METHOD("set_threshold_speed_enabled", "p_threshold_speed_enabled"), &EntityBody2D::set_threshold_speed_enabled);
+    ClassDB::bind_method(D_METHOD("is_threshold_speed_enabled"), &EntityBody2D::is_threshold_speed_enabled);
+    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::BOOL, "threshold_speed_enabled"),"set_threshold_speed_enabled", "is_threshold_speed_enabled");
     ClassDB::bind_method(D_METHOD("set_threshold_speed", "p_threshold_speed"), &EntityBody2D::set_threshold_speed);
     ClassDB::bind_method(D_METHOD("get_threshold_speed"), &EntityBody2D::get_threshold_speed);
-    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::FLOAT, "threshold_speed", PROPERTY_HINT_RANGE, "-1, 1, 0.001, or_greater, hide_slider, suffix:px/s"),"set_threshold_speed", "get_threshold_speed");
-    ClassDB::bind_method(D_METHOD("set_threshold_speed_initial_direction", "p_threshold_speed_initial_direction"), &EntityBody2D::set_threshold_speed_initial_direction);
-    ClassDB::bind_method(D_METHOD("get_threshold_speed_initial_direction"), &EntityBody2D::get_threshold_speed_initial_direction);
-    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::INT, "threshold_speed_initial_direction", PROPERTY_HINT_ENUM, "Left:-1, None:0, Right:1"),"set_threshold_speed_initial_direction", "get_threshold_speed_initial_direction");
+    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::FLOAT, "threshold_speed", PROPERTY_HINT_RANGE, "-0.001, 1, 0.001, or_greater, hide_slider, suffix:px/s"),"set_threshold_speed", "get_threshold_speed");
     ClassDB::bind_method(D_METHOD("set_threshold_speed_correction_acceleration", "p_threshold_speed_correction_acceleration"), &EntityBody2D::set_threshold_speed_correction_acceleration);
     ClassDB::bind_method(D_METHOD("get_threshold_speed_correction_acceleration"), &EntityBody2D::get_threshold_speed_correction_acceleration);
     ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::FLOAT, "threshold_speed_correction_acceleration", PROPERTY_HINT_RANGE, U"0, 1, 0.001, or_greater, hide_slider, suffix:px/s\u00B2"),"set_threshold_speed_correction_acceleration", "get_threshold_speed_correction_acceleration");
@@ -88,19 +88,23 @@ void EntityBody2D::_bind_methods()
     ClassDB::bind_method(D_METHOD("is_falling"), &EntityBody2D::is_falling);
 }
 
-EntityBody2D::EntityBody2D() {}
+EntityBody2D::EntityBody2D() 
+{
+    velocity = Vector2();
+    threshold_speed_enabled = false;
+    threshold_speed = 0.0;
+    threshold_speed_correction_acceleration = 500.0;
+    damp_enabled = false;
+    damp_min_speed = 0.0;
+    gravity_scale = 0.0;
+    max_falling_speed = 1500.0;
+    global_rotation_to_gravity_direction = true;
+    up_direction_angle = 0.0;
+}
 
 EntityBody2D::~EntityBody2D() {}
 
-void EntityBody2D::_ready()
-{
-    if (threshold_speed_initial_direction != 0 && threshold_speed != 0.0) {
-        velocity.x = threshold_speed * threshold_speed_initial_direction;
-        set_velocity(velocity);
-    }
-}
-
-Vector2 EntityBody2D::_get_gravity() const 
+Vector2 EntityBody2D::_get_gravity() const
 {
     ProjectSettings *prjs = ProjectSettings::get_singleton();
     return Vector2(prjs->get_setting("physics/2d/default_gravity_vector", Vector2(0.0, 1.0))) * double(prjs->get_setting("physics/2d/default_gravity", 980.0)); // Gets gravity from project settings
@@ -124,9 +128,9 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity)
     set_up_direction(grdir != Vector2() ? -grdir.rotated(UtilityFunctions::deg_to_rad(up_direction_angle)) : get_up_direction());
 
     // Threshold speed
-    if (!_threshold_speed_affected && threshold_speed >= 0.0 && !UtilityFunctions::is_zero_approx(velocity.x)) {
+    if (threshold_speed_enabled && !_threshold_speed_affected) {
         double dir = UtilityFunctions::signf(velocity.x);
-        velocity.x = UtilityFunctions::move_toward(velocity.x, threshold_speed * dir, threshold_speed_correction_acceleration * get_delta(this));
+        velocity.x = UtilityFunctions::move_toward(velocity.x, dir * threshold_speed, threshold_speed_correction_acceleration * get_delta(this));
         set_velocity(velocity);
     }
     _threshold_speed_affected = false; // Restore threshold affection
@@ -169,6 +173,7 @@ void EntityBody2D::calculate_gravity()
         Vector2 result = get_global_velocity() + grvec * gravity_scale * get_delta(this); // Calculates global velocity affected by the gravity
         bool on_falling = result.dot(grdir) > 0.0;
         if (max_falling_speed > 0.0 && on_falling) {
+            UtilityFunctions::print(result);
             result = Transform2DAlgo::get_projection_limit(result, grdir, max_falling_speed); // Limits the maximum of falling speed
         }
         set_global_velocity(result);
@@ -182,16 +187,15 @@ void EntityBody2D::calculate_damp()
     if (!damp_enabled) {
         return;
     }
+    
     double damp = get_damp() * get_delta(this);
-    Vector2 gv = get_global_velocity();
-    Vector2 grdir = get_gravity_vector().normalized();
-    if (damp > 0.0) {
-        Vector2 gvly = gv.project(grdir);
-        Vector2 gvlx = gv - gvly;
-        gvlx = gvlx.move_toward(gvlx.normalized() * damp_min_speed, damp);
-        gv = gvlx + gvly;
+    if (damp <= 0.0) {
+        return;
     }
-    set_global_velocity(gv);
+    
+    double dir = UtilityFunctions::signf(velocity.x);
+    velocity.x = UtilityFunctions::move_toward(velocity.x, damp_min_speed * dir, damp);
+    set_velocity(velocity);
     _threshold_speed_affected = true;
 }
 
@@ -299,13 +303,6 @@ void EntityBody2D::use_friction(const double miu)
     if (!is_on_floor()) {
         return;
     }
-    /* // Autobody mode
-    if (autobody) {
-        velocity.x = UtilityFunctions::lerpf(velocity.x, 0, miu * get_delta(this));
-        set_velocity(velocity);
-    }
-    // Rigid mode
-    else  */
     Vector2 gv = get_global_velocity();
     Vector2 gn = gv.slide(get_floor_normal());
     gv = gn.lerp(gn *0.0, miu * get_delta(this));
@@ -315,17 +312,6 @@ void EntityBody2D::use_friction(const double miu)
 
 void EntityBody2D::turn_wall() 
 {
-    /* // Autobody mode
-    if (autobody) {
-        if (_velocity.x != 0.0){
-            velocity.x = -_velocity.x;
-        }
-        else {
-            velocity.x *= -1.0;
-        }
-        set_velocity(velocity);
-    } */
-    // Rigid mode
     if (_velocity_global != Vector2()) {
         set_global_velocity(_velocity_global.reflect(get_up_direction()));
     }
@@ -560,14 +546,14 @@ double EntityBody2D::get_threshold_speed() const
     return threshold_speed;
 }
 
-void EntityBody2D::set_threshold_speed_initial_direction(const int8_t p_threshold_speed_initial_direction)
+void EntityBody2D::set_threshold_speed_enabled(const bool p_threshold_speed_enabled)
 {
-    threshold_speed_initial_direction = p_threshold_speed_initial_direction; 
+    threshold_speed_enabled = p_threshold_speed_enabled;
 }
 
-int8_t EntityBody2D::get_threshold_speed_initial_direction() const
+bool EntityBody2D::is_threshold_speed_enabled() const
 {
-    return threshold_speed_initial_direction;
+    return threshold_speed_enabled;
 }
 
 void EntityBody2D::set_threshold_speed_correction_acceleration(const double p_threshold_speed_correction_acceleration)
