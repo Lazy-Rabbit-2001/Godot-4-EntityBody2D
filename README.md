@@ -28,15 +28,15 @@ Also, to make users able to do some modification on this property, `up_direction
 > -gravity_direction.rotated(deg_to_rad(up_direction_angle))
 
 ```diff
-! Don't worry if the up direction will rotate based on one that rotated previously, after the call of the function, up direction will be rotated back to what it should be
+! Don't worry if the up direction rotates based on one that rotated previously, after the call of the function, the up direction rotates back to what it should be
 ```
 
 ## Velocity and Velocality
-To simplify the operation of velocity in some situations, the velocity of `EntityBody2D` is separated into two variants — `velocity` and `velocality`, among which the latter, blended by "velocity" and "local", means such a `velocity` rotated by `up_direction.angle()`, or the angle of gravity direction, and can be edited in the inspector.
+To simplify the operation of velocity in some situations, the velocity of `EntityBody2D` is separated into two variants — `velocity` and `velocality`, among which the latter, a word blended by "velocity" and "local", means such a `velocity` rotated according to `up_direction.angle()` or the angle of gravity direction, and can be edited in the inspector.
 
 ## Threshold Speed
-The moment a body enters an `Area2D` whose gravity override is enabled with non-standard gravity direction, the body keeps its `velocity` the same as the one before it gets into the area. This means that when, for example, from `EntityBody2D`, a monster created by a developer is expected to keep walking at a constant horizontal speed, and he/she thinks it easy because they can directly set the `velocity.x` in the function `_ready()`, an astonishing phenomenon happens: The body entering that area doesn't walk at that speed expected! Imagine you are thinking of a solution to this problem, and you get an interesting idea: why not keep the `velocity.x` constant every frame? Thus, you start working on it but end up with solving the conflict between the constant speed and the call of `accelerate_*()`. This is a great problem because, if you keep that value invariable, all methods related to acceleration will not work. However, you need acceleration. Then you come into a dilemma...  
-To have the most extent possible to solve this confusing situation, `threshold_speed` system is introduced. When the `velocity.x` doesn't match the threshold speed, it will be accelerated/decelerated to the value of `threshold_speed` by `threshold_speed_correction_acceleration`. When the value of `threshold_speed_enabled` is `false`, no threshold limitation is required. 
+The moment a body enters an `Area2D` whose gravity override is enabled with non-standard gravity direction, the body keeps its `velocity` the same as the one before it gets into the area. This means that, for example, a monster (`EntityBody2D`) created by a developer is expected to keep walking at a constant horizontal speed, and he/she thinks it easy because its `velocity.x` can be directly set in the function `_ready()`, when an astonishing phenomenon happens: The body entering that area doesn't walk at that speed expected! Imagine you are thinking of a solution to this problem, and you get an interesting idea: why not keep the `velocity.x` constant every frame? Thus, you start working on it but end up with solving the conflict between the constant speed and the call of `accelerate_*()`. This is a great problem because, if you keep that value invariable, all methods related to acceleration will not work. However, you need acceleration. Then you come into a dilemma...  
+To have this confusing situation solved aspossible as we can, `threshold_speed` system is introduced. When the `velocity.x` doesn't match the threshold speed, it is going to be accelerated/decelerated to the value of `threshold_speed` by `threshold_speed_correction_acceleration`. When the value of `threshold_speed_enabled` is `false`, no threshold limitation is required. 
 
 ## `move_and_slide()` in `EntityBody2D`
 The core of the class is **redefined** `move_and_slide()` method, though its name maintains, there is added a new extra parameter that each developer needs to know to have a better understanding of its workflow.
@@ -45,7 +45,7 @@ The core of the class is **redefined** `move_and_slide()` method, though its nam
 * `bool use_real_velocity (false)` -- this will determine the final performance of the body's movement. In case of being `true`, the body will act more like it does in realler physics environment.
 
 ### Calculation of gravity and damp
-Before v3.0, the gravity is calculated within `move_and_slide()`; since the version, the calculation of it has been extracted from the method and become an independent `calculate_gravity()`, which makes it more couplingless to code the movement of an instance of `EntityBody2D`.
+Before v3.0, the gravity is calculated within `move_and_slide()`; since v3.0 got released, the calculation of it has been extracted from the method and become an independent `calculate_gravity()`, which makes it more couplingless to code the movement for an `EntityBody2D` instance.
 Meanwhile, the simulation of being in dampful area is also what we are seeking for; thus, `calculate_damp()` may help with it when an `EntityBody2D` is in an `Area2D` whose `linear_damp` is enabled and greater than 0, which will affect the body's movement and makes it decelerate.
 
 ### `max_falling_speed` Working in the method
