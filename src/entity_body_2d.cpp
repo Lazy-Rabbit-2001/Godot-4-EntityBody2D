@@ -173,7 +173,6 @@ void EntityBody2D::calculate_gravity()
         Vector2 result = get_global_velocity() + grvec * gravity_scale * get_delta(this); // Calculates global velocity affected by the gravity
         bool on_falling = result.dot(grdir) > 0.0;
         if (max_falling_speed > 0.0 && on_falling) {
-            UtilityFunctions::print(result);
             result = Transform2DAlgo::get_projection_limit(result, grdir, max_falling_speed); // Limits the maximum of falling speed
         }
         set_global_velocity(result);
