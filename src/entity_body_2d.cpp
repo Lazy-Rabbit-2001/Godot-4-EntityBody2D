@@ -7,11 +7,6 @@
 #include <godot_cpp/classes/physics_server2d.hpp>
 #include <godot_cpp/classes/physics_direct_body_state2d.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
-#include <godot_cpp/classes/tile_set.hpp>
-#include <godot_cpp/classes/tile_map.hpp>
-#include <godot_cpp/classes/static_body2d.hpp>
-#include <godot_cpp/classes/rigid_body2d.hpp>
-#include <godot_cpp/classes/physics_material.hpp>
 #include <godot_cpp/classes/kinematic_collision2d.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -246,51 +241,8 @@ void EntityBody2D::decelerate_with_friction(const double deceleration)
         Node2D *collider = Object::cast_to<Node2D>(kc->get_collider()); // Gets collided body
         if (collider != nullptr) {
             RID collider_rid = kc->get_collider_rid(); // Stores the collider's rid for TileMap's get_layer_for_body_rid()
-            union { // Uses union to save more memory
-                TileMap *tilemap;
-                StaticBody2D *block;
-                RigidBody2D *rigid;
-            } body;
-            // For StaticBody2D and RigidBody2D and tiles of TileMap, uses their physics_material(_override).
-            // StaticBody2D
-            body.block = Object::cast_to<StaticBody2D>(collider);
-            if (body.block != nullptr) {
-                Ref<PhysicsMaterial> phymt = body.block->get_physics_material_override();
-                if (phymt != nullptr && phymt->is_rough()) {
-                    accelerate_local_x(deceleration * phymt->get_friction(), 0.0);
-                    return;
-                }
-            }
-            // RigidBody2D
-            body.rigid = Object::cast_to<RigidBody2D>(collider);
-            if (body.rigid != nullptr) {
-                Ref<PhysicsMaterial> phymt = body.rigid->get_physics_material_override();
-                if (phymt != nullptr && phymt->is_rough()) {
-                    accelerate_local_x(deceleration * phymt->get_friction(), 0.0);
-                    return;
-                }
-            }
-            // TileMap
-            body.tilemap = Object::cast_to<TileMap>(collider);
-            if (body.tilemap != nullptr) {
-                Ref<TileSet> tileset = body.tilemap->get_tileset();
-                if (tileset != nullptr) {
-                    int32_t layer = body.tilemap->get_layer_for_body_rid(collider_rid);
-                    Ref<PhysicsMaterial> phymt = tileset->get_physics_layer_physics_material(layer);
-                    if (phymt != nullptr && phymt->is_rough()) {
-                        accelerate_local_x(deceleration * phymt->get_friction(), 0.0);
-                        return;
-                    }
-                }
-            }
-            // For other bodies, uses "friction" metadata
-            if (collider->has_meta("friction")) {
-                double friction = double(collider->get_meta("friction"));
-                if (friction != Math_NAN) {
-                    accelerate_local_x(deceleration * UtilityFunctions::clampf(friction, 0.0, 1.0), 0.0);
-                    return;
-                }
-            }
+            accelerate_local_x(deceleration * double(PhysicsServer2D::get_singleton()->body_get_param(collider_rid, PhysicsServer2D::BODY_PARAM_FRICTION)), 0);
+            return;
         }
     }
     accelerate_local_x(deceleration, 0); // Deceleration
