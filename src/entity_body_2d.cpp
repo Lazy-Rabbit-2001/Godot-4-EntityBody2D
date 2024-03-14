@@ -55,6 +55,9 @@ void EntityBody2D::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_up_direction_angle", "p_up_direction_angle"), &EntityBody2D::set_up_direction_angle);
     ClassDB::bind_method(D_METHOD("get_up_direction_angle"), &EntityBody2D::get_up_direction_angle);
     ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::FLOAT, "up_direction_angle", PROPERTY_HINT_RANGE, "-180, 180, 0.001, degrees"),"set_up_direction_angle", "get_up_direction_angle");
+    ClassDB::bind_method(D_METHOD("set_up_direction_to_global_rotation", "p_up_direction_to_global_rotation"), &EntityBody2D::set_up_direction_to_global_rotation);
+    ClassDB::bind_method(D_METHOD("is_up_direction_to_global_rotation"), &EntityBody2D::is_up_direction_to_global_rotation);
+    ClassDB::add_property("EntityBody2D", PropertyInfo(Variant::BOOL, "up_direction_to_global_rotation"),"set_up_direction_to_global_rotation", "is_up_direction_to_global_rotation");
 
     ClassDB::bind_method(D_METHOD("move_and_slide", "use_real_velocity"), &EntityBody2D::move_and_slide, false);
     ClassDB::bind_method(D_METHOD("calculate_gravity"), &EntityBody2D::calculate_gravity);
@@ -95,6 +98,7 @@ EntityBody2D::EntityBody2D()
     max_falling_speed = 1500.0;
     global_rotation_to_gravity_direction = true;
     up_direction_angle = 0.0;
+    up_direction_to_global_rotation = false;
 }
 
 EntityBody2D::~EntityBody2D() {}
@@ -120,7 +124,7 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity)
     if (global_rotation_to_gravity_direction && !UtilityFunctions::is_equal_approx(get_global_rotation(), gangl)) {
         set_global_rotation(UtilityFunctions::rotate_toward(get_global_rotation(), gangl, UtilityFunctions::deg_to_rad(900.0) * get_delta(this))); // Eases the global rotation to the gravity angle
     }
-    set_up_direction(grdir != Vector2() ? -grdir.rotated(UtilityFunctions::deg_to_rad(up_direction_angle)) : get_up_direction());
+    set_up_direction(grdir != Vector2() && !up_direction_to_global_rotation ? -grdir.rotated(UtilityFunctions::deg_to_rad(up_direction_angle)) : get_up_direction().rotated(up_direction_to_global_rotation ? get_global_rotation() : 0.0));
 
     // Threshold speed
     if (threshold_speed_enabled && !_threshold_speed_affected) {
@@ -575,4 +579,14 @@ void EntityBody2D::set_up_direction_angle(const double p_up_direction_angle)
 double EntityBody2D::get_up_direction_angle() const 
 {
     return up_direction_angle;
+}
+
+void EntityBody2D::set_up_direction_to_global_rotation(const bool p_up_direction_to_global_rotation)
+{
+    up_direction_to_global_rotation = p_up_direction_to_global_rotation;
+}
+
+bool EntityBody2D::is_up_direction_to_global_rotation() const
+{
+    return up_direction_to_global_rotation;
 }

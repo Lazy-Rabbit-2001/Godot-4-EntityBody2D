@@ -22,6 +22,7 @@ private:
     double max_falling_speed;
     bool global_rotation_to_gravity_direction;
     double up_direction_angle;
+    bool up_direction_to_global_rotation;
 
     Vector2 _velocity;
     Vector2 _velocity_global;
@@ -88,6 +89,8 @@ public:
     bool is_global_rotation_to_gravity_direction() const;
     void set_up_direction_angle(const double p_up_direction_angle);
     double get_up_direction_angle() const;
+    void set_up_direction_to_global_rotation(const bool p_up_direction_to_global_rotation);
+    bool is_up_direction_to_global_rotation() const;
 };
 
 #endif
