@@ -103,6 +103,11 @@ EntityBody2D::EntityBody2D()
 
 EntityBody2D::~EntityBody2D() {}
 
+void EntityBody2D::_enter_tree()
+{
+    set_velocity(velocity);
+}
+
 Vector2 EntityBody2D::_get_gravity() const
 {
     ProjectSettings *prjs = ProjectSettings::get_singleton();

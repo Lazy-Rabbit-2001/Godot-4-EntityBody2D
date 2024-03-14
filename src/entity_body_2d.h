@@ -41,6 +41,8 @@ public:
     EntityBody2D();
     ~EntityBody2D();
 
+    void _enter_tree() override;
+
     bool move_and_slide(const bool use_real_velocity = false);
     void calculate_gravity();
     void calculate_damp();
