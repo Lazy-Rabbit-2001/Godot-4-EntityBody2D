@@ -124,7 +124,13 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity)
     if (global_rotation_to_gravity_direction && !UtilityFunctions::is_equal_approx(get_global_rotation(), gangl)) {
         set_global_rotation(UtilityFunctions::rotate_toward(get_global_rotation(), gangl, UtilityFunctions::deg_to_rad(900.0) * get_delta(this))); // Eases the global rotation to the gravity angle
     }
-    set_up_direction(grdir != Vector2() && !up_direction_to_global_rotation ? -grdir.rotated(UtilityFunctions::deg_to_rad(up_direction_angle)) : get_up_direction().rotated(up_direction_to_global_rotation ? get_global_rotation() : 0.0));
+    double up_inclining_angle = UtilityFunctions::deg_to_rad(up_direction_angle);
+    Vector2 up = get_up_direction();
+    if (!up_direction_to_global_rotation) {
+        set_up_direction(grdir != Vector2() ? -grdir.rotated(up_inclining_angle) : get_up_direction());
+    } else {
+        set_up_direction(get_up_direction().rotated((up_direction_to_global_rotation ? get_global_rotation() : 0.0) + up_inclining_angle));
+    }
 
     // Threshold speed
     if (threshold_speed_enabled && !_threshold_speed_affected) {
@@ -151,6 +157,10 @@ bool EntityBody2D::move_and_slide(const bool use_real_velocity)
     }
     if (is_on_floor()) {
         emit_signal("collided_floor");
+    }
+
+    if (up_direction_to_global_rotation) {
+        set_up_direction(up);
     }
 
     /* // Fix abnormal grounding
@@ -472,7 +482,7 @@ bool EntityBody2D::is_falling() const
 void EntityBody2D::set_velocity(const Vector2 &p_velocity) 
 {
     velocity = p_velocity;
-    CharacterBody2D::set_velocity(velocity.rotated(get_up_direction().angle() + Math_PI/2.0));
+    CharacterBody2D::set_velocity(velocity.rotated(get_motion_mode() == MotionMode::MOTION_MODE_GROUNDED ? get_up_direction().angle() + Math_PI/2.0 : get_global_rotation()));
 }
 
 Vector2 EntityBody2D::get_velocity() const 
@@ -483,7 +493,7 @@ Vector2 EntityBody2D::get_velocity() const
 void EntityBody2D::set_global_velocity(const Vector2 &p_global_velocity) 
 {
     CharacterBody2D::set_velocity(p_global_velocity);
-    velocity = get_global_velocity().rotated(-get_up_direction().angle() - Math_PI/2.0);
+    velocity = get_global_velocity().rotated(get_motion_mode() == MotionMode::MOTION_MODE_GROUNDED ? -get_up_direction().angle() - Math_PI/2.0 : -get_global_rotation());
 }
 
 Vector2 EntityBody2D::get_global_velocity() const 
